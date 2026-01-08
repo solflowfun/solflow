@@ -124,7 +124,6 @@ export default function HomePage() {
       const rect = timeline.getBoundingClientRect();
       const windowHeight = window.innerHeight;
       
-      // Calculate how far through the timeline section we've scrolled
       const start = rect.top - windowHeight * 0.5;
       const end = rect.bottom - windowHeight * 0.5;
       const current = -start;
@@ -133,7 +132,6 @@ export default function HomePage() {
       const progress = Math.max(0, Math.min(1, current / total));
       setScrollProgress(progress);
       
-      // Determine active milestone based on scroll
       const newIndex = Math.min(
         Math.floor(progress * milestones.length),
         milestones.length - 1
@@ -160,7 +158,7 @@ export default function HomePage() {
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white mb-6">
             Token locks that
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-violet-400">
+            <span className="text-flow-gradient">
               build trust
             </span>
           </h1>
@@ -173,14 +171,15 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-4">
             <Link
               href="/create"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-surface-950 font-medium text-sm hover:bg-surface-100 transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium text-sm transition-all hover:shadow-glow-flow"
+              style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 100%)' }}
             >
               Create Lock
               <ArrowRight className="h-4 w-4" />
             </Link>
             <Link
               href="/explore"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-surface-700 text-surface-300 font-medium text-sm hover:border-surface-500 hover:text-white transition-colors"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-surface-700 text-surface-300 font-medium text-sm hover:border-orange-500/50 hover:text-white transition-colors"
             >
               Explore
             </Link>
@@ -213,10 +212,13 @@ export default function HomePage() {
               {/* Rail background */}
               <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-surface-800" />
               
-              {/* Rail progress fill */}
+              {/* Rail progress fill - teal to orange to coral */}
               <div
-                className="absolute left-[19px] top-0 w-[2px] bg-gradient-to-b from-teal-500 to-violet-500 transition-all duration-300"
-                style={{ height: `${scrollProgress * 100}%` }}
+                className="absolute left-[19px] top-0 w-[2px] transition-all duration-300"
+                style={{ 
+                  height: `${scrollProgress * 100}%`,
+                  background: 'linear-gradient(180deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)'
+                }}
               />
 
               {/* Milestones */}
@@ -235,11 +237,12 @@ export default function HomePage() {
                       <div
                         className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                           isActive
-                            ? 'bg-gradient-to-br from-teal-500 to-violet-500 text-white shadow-lg shadow-teal-500/20'
+                            ? 'text-white shadow-lg shadow-orange-500/20'
                             : isPast
                             ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
                             : 'bg-surface-800 text-surface-500 border border-surface-700'
                         }`}
+                        style={isActive ? { background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 100%)' } : {}}
                       >
                         {isPast ? <Check className="h-4 w-4" /> : milestone.step}
                       </div>
@@ -251,7 +254,7 @@ export default function HomePage() {
                             {milestone.title}
                           </h3>
                           {milestone.yieldBoost && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs">
                               <Zap className="h-3 w-3" />
                               Yield Boost
                             </span>
@@ -294,7 +297,10 @@ export default function HomePage() {
 
                     {/* Token display */}
                     <div className="flex items-center gap-4 mb-6">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/20 to-violet-500/20 border border-surface-700 flex items-center justify-center">
+                      <div 
+                        className="w-12 h-12 rounded-xl border border-surface-700 flex items-center justify-center"
+                        style={{ background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)' }}
+                      >
                         <Lock className="h-5 w-5 text-teal-400" />
                       </div>
                       <div>
@@ -317,7 +323,8 @@ export default function HomePage() {
                       </div>
                       <div className="h-1.5 bg-surface-800 rounded-full overflow-hidden">
                         <motion.div
-                          className="h-full bg-gradient-to-r from-teal-500 to-violet-500 rounded-full"
+                          className="h-full rounded-full"
+                          style={{ background: 'linear-gradient(90deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
                           initial={{ width: 0 }}
                           animate={{ width: `${milestones[activeIndex].preview.progress}%` }}
                           transition={{ duration: 0.5 }}
@@ -339,8 +346,8 @@ export default function HomePage() {
 
                     {/* Yield boost indicator */}
                     {milestones[activeIndex].yieldBoost && (
-                      <div className="mt-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
-                        <div className="flex items-center gap-2 text-amber-400 text-sm">
+                      <div className="mt-4 p-3 rounded-xl bg-orange-500/5 border border-orange-500/10">
+                        <div className="flex items-center gap-2 text-orange-400 text-sm">
                           <Zap className="h-4 w-4" />
                           <span>Yield accruing: ~0.023 SOL</span>
                         </div>
@@ -452,7 +459,8 @@ export default function HomePage() {
 
           <Link
             href="/create"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-teal-500 to-violet-500 text-white font-medium text-sm hover:opacity-90 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium text-sm hover:opacity-90 transition-opacity"
+            style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
           >
             Create Your First Lock
             <ArrowRight className="h-4 w-4" />

@@ -24,11 +24,15 @@ export const Navbar: FC = () => {
         <div className="flex h-14 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-gradient-to-br from-teal-500 to-violet-500">
+            <div 
+              className="flex h-7 w-7 items-center justify-center rounded-lg"
+              style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
+            >
               <Lock className="h-3.5 w-3.5 text-white" />
             </div>
             <span className="font-display text-lg font-semibold tracking-tight">
-              SolFlow
+              <span className="text-teal-400">Sol</span>
+              <span className="text-orange-400">Flow</span>
             </span>
           </Link>
 
@@ -62,7 +66,7 @@ export const Navbar: FC = () => {
 
           {/* Wallet Button */}
           <div className="flex items-center gap-3">
-            <WalletMultiButton className="!bg-white !text-surface-950 hover:!bg-surface-100 !rounded-full !h-8 !px-4 !text-xs !font-medium !border-0" />
+            <WalletMultiButton className="!rounded-full !h-8 !px-4 !text-xs !font-medium !border-0" />
             
             {/* Mobile menu button */}
             <button

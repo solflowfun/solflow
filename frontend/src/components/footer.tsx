@@ -12,11 +12,15 @@ export const Footer: FC = () => {
           {/* Brand */}
           <div className="flex items-center gap-8">
             <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-teal-500 to-violet-500">
+              <div 
+                className="flex h-6 w-6 items-center justify-center rounded-md"
+                style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
+              >
                 <Lock className="h-3 w-3 text-white" />
               </div>
               <span className="font-display text-sm font-semibold tracking-tight">
-                SolFlow
+                <span className="text-teal-400">Sol</span>
+                <span className="text-orange-400">Flow</span>
               </span>
             </Link>
             <div className="hidden sm:flex items-center gap-6 text-xs text-surface-500">
@@ -39,7 +43,7 @@ export const Footer: FC = () => {
                 href="https://x.com/solflowdotfun" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-md text-surface-500 hover:text-surface-300 hover:bg-surface-800/30 transition-colors"
+                className="p-1.5 rounded-md text-surface-500 hover:text-teal-400 hover:bg-surface-800/30 transition-colors"
                 aria-label="Twitter"
               >
                 <Twitter className="h-4 w-4" />
@@ -48,7 +52,7 @@ export const Footer: FC = () => {
                 href="https://github.com/solflowfun/solflow" 
                 target="_blank" 
                 rel="noopener noreferrer"
-                className="p-1.5 rounded-md text-surface-500 hover:text-surface-300 hover:bg-surface-800/30 transition-colors"
+                className="p-1.5 rounded-md text-surface-500 hover:text-orange-400 hover:bg-surface-800/30 transition-colors"
                 aria-label="GitHub"
               >
                 <Github className="h-4 w-4" />
