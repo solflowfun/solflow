@@ -4,24 +4,13 @@
   "private": true,
   "packageManager": "yarn@1.22.19",
   "description": "MemeLock - Solana token lock, vesting, and yield boost platform",
-  "workspaces": [
-    "packages/*",
-    "backend",
-    "frontend"
-  ],
   "scripts": {
-    "build": "turbo run build",
-    "dev": "turbo run dev",
-    "test": "turbo run test",
-    "lint": "turbo run lint",
-    "anchor:build": "cd programs && anchor build",
-    "anchor:test": "cd programs && anchor test",
-    "anchor:deploy": "cd programs && anchor deploy",
-    "db:migrate": "cd backend && npm run db:migrate",
-    "db:seed": "cd backend && npm run db:seed"
+    "build": "cd frontend && npm run build",
+    "dev": "cd frontend && npm run dev",
+    "start": "cd frontend && npm run start",
+    "lint": "cd frontend && npm run lint"
   },
   "devDependencies": {
-    "turbo": "^2.0.0",
     "typescript": "^5.3.0"
   },
   "engines": {
