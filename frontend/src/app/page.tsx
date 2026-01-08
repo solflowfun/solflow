@@ -1,396 +1,450 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { FC, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from 'framer-motion';
+import { 
+  Lock, Clock, Zap, ArrowRight, Check, 
+  ChevronDown, Shield, Plus, Minus
+} from 'lucide-react';
 
-// Flow lines SVG component
-function FlowLines({ className }: { className?: string }) {
-  return (
-    <svg className={`absolute pointer-events-none ${className}`} viewBox="0 0 1200 800" preserveAspectRatio="none">
-      <path
-        d="M-100,200 Q300,100 600,200 T1300,180"
-        className="flow-line"
-        strokeDasharray="1000"
-        strokeDashoffset="1000"
-        style={{ animation: 'flowDraw 3s ease-out forwards' }}
-      />
-      <path
-        d="M-100,400 Q400,300 700,400 T1300,380"
-        className="flow-line"
-        strokeDasharray="1000"
-        strokeDashoffset="1000"
-        style={{ animation: 'flowDraw 3s ease-out 0.3s forwards' }}
-      />
-      <path
-        d="M-100,600 Q350,500 650,600 T1300,580"
-        className="flow-line"
-        strokeDasharray="1000"
-        strokeDashoffset="1000"
-        style={{ animation: 'flowDraw 3s ease-out 0.6s forwards' }}
-      />
-      <style>{`
-        @keyframes flowDraw {
-          to { stroke-dashoffset: 0; }
-        }
-      `}</style>
-    </svg>
-  );
-}
-
-// Flywheel component
-function Flywheel() {
-  const steps = [
-    { num: 1, title: 'Lock/Vest', desc: 'Deposit tokens with schedule' },
-    { num: 2, title: 'Proof Page', desc: 'Public verification URL' },
-    { num: 3, title: 'Confidence', desc: 'Community trust built' },
-    { num: 4, title: 'Liquidity', desc: 'Holders stay engaged' },
-    { num: 5, title: 'Launch', desc: 'Sustainable growth' },
-  ];
-
-  return (
-    <div className="relative py-16">
-      {/* Connection lines */}
-      <svg className="absolute inset-0 w-full h-full" preserveAspectRatio="none">
-        <defs>
-          <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="var(--teal)" stopOpacity="0.3" />
-            <stop offset="50%" stopColor="var(--lavender)" stopOpacity="0.3" />
-            <stop offset="100%" stopColor="var(--gold)" stopOpacity="0.3" />
-          </linearGradient>
-        </defs>
-      </svg>
-      
-      <div className="flex items-center justify-between max-w-4xl mx-auto relative">
-        {steps.map((step, i) => (
-          <div key={step.num} className="flex items-center">
-            <div className="flywheel-node text-center">
-              <div className="flywheel-number mb-3">{step.num}</div>
-              <div className="text-sm font-medium text-[#1A1A1A] mb-1">{step.title}</div>
-              <div className="text-[11px] text-[#8A8A8A] max-w-[100px]">{step.desc}</div>
-            </div>
-            {i < steps.length - 1 && (
-              <div className="w-12 lg:w-20 h-[1px] bg-gradient-to-r from-[#50908D]/30 via-[#817CCD]/30 to-[#C47809]/30 mx-2 lg:mx-4" />
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Yield Boost callout */}
-      <div className="mt-12 max-w-md mx-auto">
-        <div className="editorial-card p-4 relative">
-          <div className="absolute -top-3 left-4 bg-[var(--parchment)] px-2 text-[10px] uppercase tracking-[0.15em] text-[#C47809] font-medium">
-            Yield Boost
-          </div>
-          <p className="text-sm text-[#4A4A4A] leading-relaxed">
-            Pay a % of buy value → matched SOL stake → yield accrues through lock.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Proof preview card (sticky sidebar)
-function ProofPreview({ activeSection }: { activeSection: number }) {
-  const scheduleData = [
-    { date: 'Mar 15, 2026', amount: '250,000', status: 'Locked' },
-    { date: 'Jun 15, 2026', amount: '250,000', status: 'Pending' },
-    { date: 'Sep 15, 2026', amount: '250,000', status: 'Pending' },
-    { date: 'Dec 15, 2026', amount: '250,000', status: 'Pending' },
-  ];
-
-  return (
-    <div className="proof-card">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-1">Proof Page</div>
-          <div className="font-editorial text-lg">$FLOW Team Lock</div>
-        </div>
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8CCBBF] to-[#817CCD]" />
-      </div>
-
-      <div className="space-y-4 mb-6">
-        <div className="flex justify-between text-sm">
-          <span className="text-[#8A8A8A]">Total Locked</span>
-          <span className="font-mono font-medium">1,000,000 FLOW</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[#8A8A8A]">Lock Type</span>
-          <span className="font-mono">{activeSection >= 1 ? 'Vesting' : 'Standard'}</span>
-        </div>
-        <div className="flex justify-between text-sm">
-          <span className="text-[#8A8A8A]">Schedule</span>
-          <span className="font-mono">{activeSection >= 2 ? 'Cliff + Linear' : 'Quarterly'}</span>
-        </div>
-        {activeSection >= 3 && (
-          <div className="flex justify-between text-sm">
-            <span className="text-[#8A8A8A]">Yield Accrued</span>
-            <span className="font-mono text-[#50908D]">+2.34 SOL</span>
-          </div>
-        )}
-      </div>
-
-      <div className="hairline mb-4" />
-
-      <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-3">Unlock Schedule</div>
-      <div className="space-y-2">
-        {scheduleData.map((item, i) => (
-          <div key={i} className="flex items-center justify-between text-xs">
-            <span className="font-mono text-[#4A4A4A]">{item.date}</span>
-            <span className="font-mono">{item.amount}</span>
-            <span className={`text-[10px] px-2 py-0.5 rounded ${
-              item.status === 'Locked' ? 'bg-[#50908D]/10 text-[#50908D]' : 'bg-[#E5E0D8] text-[#8A8A8A]'
-            }`}>
-              {item.status}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 pt-4 border-t border-[#E5E0D8]">
-        <div className="flex items-center gap-2 text-xs text-[#8A8A8A]">
-          <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          Verified on-chain
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Narrative sections
-const narrativeSections = [
+// Timeline milestones
+const milestones = [
   {
-    title: 'Token Locks vs Vesting',
-    content: `A **token lock** is a simple time-based vault: deposit tokens, set an unlock date, and the tokens remain inaccessible until that moment. Vesting adds complexity—tokens release incrementally over a defined schedule, often with an initial cliff period where nothing unlocks.`,
-    quote: 'Locks prove commitment. Vesting schedules prove planning.',
+    id: 'create',
+    step: 1,
+    title: 'Create Lock',
+    description: 'Define your token amount, recipient, and unlock schedule',
+    preview: {
+      status: 'Creating',
+      tokens: '1,000,000 PEPE',
+      progress: 0,
+      state: 'Configuring parameters...',
+    },
   },
   {
-    title: 'Cliff + Linear Schedules',
-    content: `The cliff period ensures recipients demonstrate value before receiving any tokens. After the cliff expires, linear vesting releases tokens in equal portions—daily, weekly, or monthly. This prevents dump-and-run scenarios while maintaining team motivation.`,
-    quote: null,
+    id: 'confirmed',
+    step: 2,
+    title: 'Lock Confirmed',
+    description: 'Tokens transferred to secure escrow on Solana',
+    preview: {
+      status: 'Locked',
+      tokens: '1,000,000 PEPE',
+      progress: 0,
+      state: 'Tokens secured in escrow',
+    },
   },
   {
-    title: 'Permissions & Control',
-    content: `Lock creators can configure **cancel permissions** (allowing early termination with unvested tokens returning to a specified address) and **recipient transfer** (enabling locked positions to be reassigned). These controls balance flexibility with commitment.`,
-    quote: null,
+    id: 'cliff',
+    step: 3,
+    title: 'Cliff Released',
+    description: 'Initial cliff amount becomes claimable',
+    yieldBoost: true,
+    preview: {
+      status: 'Cliff',
+      tokens: '1,000,000 PEPE',
+      progress: 10,
+      state: '100,000 tokens unlocked (10% cliff)',
+      unlocked: '100,000',
+    },
   },
   {
-    title: 'Yield Boost Attestation',
-    content: `Our signature feature: when enabling Yield Boost, you attest to your token purchase price. A corresponding fee in SOL is matched and staked through liquid staking tokens. The yield accrues to your lock, distributed proportionally upon unlock events.`,
-    quote: 'Your conviction earns yield. Your patience compounds it.',
+    id: 'vesting',
+    step: 4,
+    title: 'Vest Unlocks',
+    description: 'Progressive unlocks according to schedule',
+    preview: {
+      status: 'Vesting',
+      tokens: '1,000,000 PEPE',
+      progress: 55,
+      state: 'Monthly unlocks in progress',
+      unlocked: '550,000',
+    },
+  },
+  {
+    id: 'end',
+    step: 5,
+    title: 'Schedule Complete',
+    description: 'All tokens fully vested and available',
+    preview: {
+      status: 'Complete',
+      tokens: '1,000,000 PEPE',
+      progress: 100,
+      state: 'All tokens unlocked',
+      unlocked: '1,000,000',
+    },
+  },
+  {
+    id: 'claim',
+    step: 6,
+    title: 'Claim Tokens',
+    description: 'Withdraw unlocked tokens to your wallet',
+    preview: {
+      status: 'Claimed',
+      tokens: '1,000,000 PEPE',
+      progress: 100,
+      state: 'Tokens transferred to recipient',
+      unlocked: '1,000,000',
+      claimed: true,
+    },
   },
 ];
 
-// Transparency table data
-const transparencyData = [
-  { epoch: '482', slot: '208,443,291', action: 'Lock Created', amount: '1,000,000 FLOW', hash: '7xKp...3mNq', published: '2026-01-08 14:23:01' },
-  { epoch: '482', slot: '208,443,445', action: 'Boost Enabled', amount: '2.5 SOL', hash: '9aRt...7kLm', published: '2026-01-08 14:24:18' },
-  { epoch: '483', slot: '208,512,102', action: 'Yield Claimed', amount: '0.12 SOL', hash: '4bCx...2pQw', published: '2026-01-09 02:15:44' },
+const faqs = [
+  {
+    q: 'Are locks truly irreversible?',
+    a: 'Yes. Once created, token locks cannot be modified. The tokens are held in a program-derived escrow account that only releases according to the predefined schedule.',
+  },
+  {
+    q: 'How does Yield Boost work?',
+    a: 'You pay a small fee (2% of your token\'s buy price). We match that fee with SOL and stake it. At unlock, you receive the staking yield generated during the lock period.',
+  },
+  {
+    q: 'What tokens are supported?',
+    a: 'All SPL tokens and Token-2022 tokens on Solana, including LP tokens from Raydium, Orca, and Meteora.',
+  },
+  {
+    q: 'Can I cancel a vesting contract?',
+    a: 'Only if cancellation was enabled at creation. If canceled, unlocked tokens go to the recipient and locked tokens return to the sender.',
+  },
 ];
 
 export default function HomePage() {
-  const [activeSection, setActiveSection] = useState(0);
-  const narrativeRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const index = narrativeRefs.current.indexOf(entry.target as HTMLDivElement);
-            if (index !== -1) setActiveSection(index);
-          }
-        });
-      },
-      { threshold: 0.5, rootMargin: '-100px 0px' }
+  const { scrollYProgress } = useScroll({
+    target: timelineRef,
+    offset: ['start center', 'end center'],
+  });
+
+  const railProgress = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
+    const index = Math.min(
+      Math.floor(latest * milestones.length),
+      milestones.length - 1
     );
-
-    narrativeRefs.current.forEach((ref) => {
-      if (ref) observer.observe(ref);
-    });
-
-    return () => observer.disconnect();
-  }, []);
+    setActiveIndex(index);
+  });
 
   return (
-    <main className="relative overflow-hidden">
-      <FlowLines className="w-full h-full top-0 left-0 opacity-50" />
-      
+    <div ref={containerRef} className="relative">
       {/* Hero Section */}
-      <section className="relative px-6 lg:px-16 pt-32 pb-24 max-w-7xl mx-auto">
-        <div className="max-w-3xl">
-          <h1 className="font-editorial text-5xl lg:text-7xl text-[#1A1A1A] mb-6 animate-fade-in-up">
-            Lock. Vest. Prove.
+      <section className="min-h-[70vh] flex flex-col items-center justify-center px-4 relative">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="text-center max-w-2xl"
+        >
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white mb-6">
+            Token locks that
+            <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-violet-400">
+              build trust
+            </span>
           </h1>
-          <p className="text-xl lg:text-2xl text-[#4A4A4A] leading-relaxed mb-10 animate-fade-in-up stagger-1 max-w-2xl">
-            Solana-only token locks + vesting made for memecoins, with public proof pages and optional{' '}
-            <span className="accent-underline">Yield Boost</span>.
+          
+          <p className="text-lg text-surface-400 mb-10 max-w-lg mx-auto leading-relaxed">
+            Secure vesting schedules with on-chain proofs. 
+            Earn yield while locked.
           </p>
           
-          <div className="flex flex-wrap gap-4 mb-16 animate-fade-in-up stagger-2">
-            <Link href="/create" className="btn-primary">
+          <div className="flex items-center justify-center gap-4">
+            <Link
+              href="/create"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-white text-surface-950 font-medium text-sm hover:bg-surface-100 transition-colors"
+            >
               Create Lock
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
+              <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link href="/explore" className="btn-secondary">
-              View Proof
+            <Link
+              href="/explore"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-surface-700 text-surface-300 font-medium text-sm hover:border-surface-500 hover:text-white transition-colors"
+            >
+              Explore
             </Link>
           </div>
+        </motion.div>
 
-          {/* Trust strip */}
-          <div className="flex flex-wrap items-center gap-6 animate-fade-in-up stagger-3">
-            {[
-              'Multisig treasury',
-              'Deterministic schedules',
-              'Public proof pages',
-              'Price attestations',
-              'LST staking',
-            ].map((item, i) => (
-              <div key={i} className="flex items-center gap-3">
-                <span className="trust-badge">{item}</span>
-                {i < 4 && <span className="text-[#D4CFC4]">•</span>}
-              </div>
-            ))}
-          </div>
-        </div>
+        {/* Scroll indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="absolute bottom-12 flex flex-col items-center gap-2 text-surface-500"
+        >
+          <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+          >
+            <ChevronDown className="h-4 w-4" />
+          </motion.div>
+        </motion.div>
       </section>
 
-      {/* Divider */}
-      <div className="hairline max-w-6xl mx-auto" />
+      {/* Timeline Section */}
+      <section ref={timelineRef} className="relative py-32">
+        <div className="max-w-6xl mx-auto px-4">
+          <div className="grid lg:grid-cols-[1fr,400px] gap-16">
+            {/* Timeline Rail */}
+            <div className="relative">
+              {/* Rail background */}
+              <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-surface-800" />
+              
+              {/* Rail progress fill */}
+              <motion.div
+                className="absolute left-[19px] top-0 w-[2px] bg-gradient-to-b from-teal-500 to-violet-500"
+                style={{ height: railProgress }}
+              />
 
-      {/* Flowwheel Section */}
-      <section className="px-6 lg:px-16 py-20 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">The Mechanism</div>
-          <h2 className="font-editorial text-3xl lg:text-4xl text-[#1A1A1A]">The Solflow Flywheel</h2>
-        </div>
-        <Flywheel />
-      </section>
+              {/* Milestones */}
+              <div className="space-y-24">
+                {milestones.map((milestone, index) => {
+                  const isActive = index === activeIndex;
+                  const isPast = index < activeIndex;
 
-      {/* Divider */}
-      <div className="hairline max-w-6xl mx-auto" />
+                  return (
+                    <motion.div
+                      key={milestone.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      whileInView={{ opacity: 1, x: 0 }}
+                      viewport={{ once: true, margin: '-100px' }}
+                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      className="relative pl-16"
+                    >
+                      {/* Step indicator */}
+                      <div
+                        className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                          isActive
+                            ? 'bg-gradient-to-br from-teal-500 to-violet-500 text-white shadow-lg shadow-teal-500/20'
+                            : isPast
+                            ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
+                            : 'bg-surface-800 text-surface-500 border border-surface-700'
+                        }`}
+                      >
+                        {isPast ? <Check className="h-4 w-4" /> : milestone.step}
+                      </div>
 
-      {/* Narrative + Proof Preview Section */}
-      <section className="px-6 lg:px-16 py-20 max-w-7xl mx-auto">
-        <div className="grid lg:grid-cols-[1fr,380px] gap-16">
-          {/* Left: Scrolling narrative */}
-          <div className="space-y-16">
-            <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-8">How It Works</div>
-            
-            {narrativeSections.map((section, i) => (
-              <div
-                key={i}
-                ref={(el) => { narrativeRefs.current[i] = el; }}
-                className="scroll-mt-32"
-              >
-                <h3 className="font-editorial text-2xl text-[#1A1A1A] mb-4">{section.title}</h3>
-                <p
-                  className="text-[#4A4A4A] leading-relaxed"
-                  dangerouslySetInnerHTML={{
-                    __html: section.content.replace(/\*\*(.*?)\*\*/g, '<strong class="text-[#1A1A1A]">$1</strong>'),
-                  }}
-                />
-                {section.quote && (
-                  <blockquote className="pull-quote mt-6">{section.quote}</blockquote>
-                )}
+                      {/* Content */}
+                      <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                        <div className="flex items-center gap-3 mb-2">
+                          <h3 className={`text-lg font-medium ${isActive ? 'text-white' : 'text-surface-300'}`}>
+                            {milestone.title}
+                          </h3>
+                          {milestone.yieldBoost && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs">
+                              <Zap className="h-3 w-3" />
+                              Yield Boost
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm text-surface-500 max-w-sm">
+                          {milestone.description}
+                        </p>
+                      </div>
+                    </motion.div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            </div>
 
-          {/* Right: Sticky proof preview */}
-          <div className="hidden lg:block">
-            <div className="sticky top-32">
-              <ProofPreview activeSection={activeSection} />
+            {/* Pinned Preview */}
+            <div className="hidden lg:block">
+              <div className="sticky top-32">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={activeIndex}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    transition={{ duration: 0.3 }}
+                    className="bg-surface-900/50 backdrop-blur-sm border border-surface-800 rounded-2xl p-6"
+                  >
+                    <div className="flex items-center justify-between mb-6">
+                      <span className="text-xs uppercase tracking-widest text-surface-500">
+                        Proof Preview
+                      </span>
+                      <span className={`text-xs px-2 py-1 rounded-full ${
+                        milestones[activeIndex].preview.claimed
+                          ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
+                          : 'bg-surface-800 text-surface-400'
+                      }`}>
+                        {milestones[activeIndex].preview.status}
+                      </span>
+                    </div>
+
+                    {/* Token display */}
+                    <div className="flex items-center gap-4 mb-6">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500/20 to-violet-500/20 border border-surface-700 flex items-center justify-center">
+                        <Lock className="h-5 w-5 text-teal-400" />
+                      </div>
+                      <div>
+                        <div className="text-xl font-semibold text-white">
+                          {milestones[activeIndex].preview.tokens}
+                        </div>
+                        <div className="text-sm text-surface-500">
+                          {milestones[activeIndex].preview.state}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Progress bar */}
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <span className="text-surface-500">Progress</span>
+                        <span className="text-surface-400">
+                          {milestones[activeIndex].preview.progress}%
+                        </span>
+                      </div>
+                      <div className="h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                        <motion.div
+                          className="h-full bg-gradient-to-r from-teal-500 to-violet-500 rounded-full"
+                          initial={{ width: 0 }}
+                          animate={{ width: `${milestones[activeIndex].preview.progress}%` }}
+                          transition={{ duration: 0.5 }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Unlocked amount */}
+                    {milestones[activeIndex].preview.unlocked && (
+                      <div className="pt-4 border-t border-surface-800">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-surface-500">Unlocked</span>
+                          <span className="text-sm font-medium text-teal-400">
+                            {milestones[activeIndex].preview.unlocked} PEPE
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Yield boost indicator */}
+                    {milestones[activeIndex].yieldBoost && (
+                      <div className="mt-4 p-3 rounded-xl bg-amber-500/5 border border-amber-500/10">
+                        <div className="flex items-center gap-2 text-amber-400 text-sm">
+                          <Zap className="h-4 w-4" />
+                          <span>Yield accruing: ~0.023 SOL</span>
+                        </div>
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+
+                {/* Verification badge */}
+                <div className="mt-4 flex items-center gap-2 text-surface-500 text-xs">
+                  <Shield className="h-3.5 w-3.5" />
+                  <span>Verified on Solana blockchain</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="hairline max-w-6xl mx-auto" />
-
-      {/* Transparency Section */}
-      <section className="px-6 lg:px-16 py-20 max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">On-Chain Verification</div>
-          <h2 className="font-editorial text-3xl lg:text-4xl text-[#1A1A1A]">Transparency Log</h2>
-        </div>
-
-        <div className="max-w-5xl mx-auto editorial-card overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="data-table">
-              <thead>
-                <tr className="bg-[#FAFAF8]">
-                  <th className="px-6">Epoch/Slot</th>
-                  <th className="px-6">Action</th>
-                  <th className="px-6">Amount</th>
-                  <th className="px-6">Merkle Hash</th>
-                  <th className="px-6">Published</th>
-                </tr>
-              </thead>
-              <tbody>
-                {transparencyData.map((row, i) => (
-                  <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
-                    <td className="px-6 text-[#8A8A8A]">{row.epoch}/{row.slot}</td>
-                    <td className="px-6">
-                      <span className={`inline-flex items-center gap-1.5 ${
-                        row.action === 'Lock Created' ? 'text-[#50908D]' :
-                        row.action === 'Boost Enabled' ? 'text-[#817CCD]' :
-                        'text-[#C47809]'
-                      }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        {row.action}
-                      </span>
-                    </td>
-                    <td className="px-6">{row.amount}</td>
-                    <td className="px-6 text-[#8A8A8A]">{row.hash}</td>
-                    <td className="px-6 text-[#8A8A8A]">{row.published}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="px-6 py-3 bg-[#FAFAF8] border-t border-[#E5E0D8] text-[11px] text-[#8A8A8A]">
-            All transactions verifiable via Solana Explorer • Merkle proofs stored on-chain
+      {/* Stats bar */}
+      <section className="py-16 border-y border-surface-800/50">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="grid grid-cols-3 gap-8 text-center">
+            {[
+              { value: '$12.5M', label: 'Total Locked' },
+              { value: '1,234', label: 'Active Contracts' },
+              { value: '99.9%', label: 'Uptime' },
+            ].map((stat) => (
+              <div key={stat.label}>
+                <div className="text-2xl sm:text-3xl font-display font-semibold text-white mb-1">
+                  {stat.value}
+                </div>
+                <div className="text-xs text-surface-500 uppercase tracking-wider">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div className="hairline max-w-6xl mx-auto" />
+      {/* FAQ Section */}
+      <section className="py-24">
+        <div className="max-w-2xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-2xl font-display font-semibold text-white mb-4">
+              Frequently Asked
+            </h2>
+            <p className="text-surface-500">
+              Everything you need to know about token locks
+            </p>
+          </div>
 
-      {/* Manifesto Close */}
-      <section className="px-6 lg:px-16 py-24 max-w-7xl mx-auto text-center">
-        <div className="max-w-2xl mx-auto">
-          <p className="font-editorial text-2xl lg:text-3xl text-[#1A1A1A] leading-relaxed mb-4">
-            Fair launches deserve fair infrastructure.
-          </p>
-          <p className="text-lg text-[#4A4A4A] mb-12">
-            Lock your tokens. Build trust. Let your conviction earn yield.
-          </p>
+          <div className="space-y-2">
+            {faqs.map((faq, index) => (
+              <div
+                key={index}
+                className="border border-surface-800 rounded-xl overflow-hidden"
+              >
+                <button
+                  onClick={() => setOpenFaq(openFaq === index ? null : index)}
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-surface-900/50 transition-colors"
+                >
+                  <span className="text-sm font-medium text-surface-200">
+                    {faq.q}
+                  </span>
+                  {openFaq === index ? (
+                    <Minus className="h-4 w-4 text-surface-500 shrink-0" />
+                  ) : (
+                    <Plus className="h-4 w-4 text-surface-500 shrink-0" />
+                  )}
+                </button>
+                <AnimatePresence>
+                  {openFaq === index && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <div className="px-6 pb-4 text-sm text-surface-400 leading-relaxed">
+                        {faq.a}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Transparency section */}
+      <section className="py-24 border-t border-surface-800/50">
+        <div className="max-w-4xl mx-auto px-4 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-800/50 text-surface-400 text-xs mb-8">
+            <Shield className="h-3.5 w-3.5" />
+            <span>Built for transparency</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white mb-4">
+            Every lock is publicly verifiable
+          </h2>
           
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link href="/create" className="btn-primary">
-              Create a Proof Lock
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-            <a
-              href="https://docs.solflow.fun"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-secondary"
-            >
-              Read Docs
-            </a>
-          </div>
+          <p className="text-surface-400 max-w-lg mx-auto mb-10">
+            All contracts are on-chain with shareable proof pages. 
+            No hidden terms, no trust required.
+          </p>
+
+          <Link
+            href="/create"
+            className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-teal-500 to-violet-500 text-white font-medium text-sm hover:opacity-90 transition-opacity"
+          >
+            Create Your First Lock
+            <ArrowRight className="h-4 w-4" />
+          </Link>
         </div>
       </section>
-    </main>
+    </div>
   );
 }

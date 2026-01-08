@@ -1,327 +1,311 @@
 'use client';
 
-import Link from 'next/link';
+import { FC, useState } from 'react';
 import { useParams } from 'next/navigation';
+import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { 
+  Lock, Clock, User, ExternalLink, Copy, Check, 
+  Calendar, Coins, Zap, Share2, Shield, AlertCircle 
+} from 'lucide-react';
 
-// Mock lock data
-const mockLockData = {
-  id: '7xKp3mNq',
-  token: {
-    name: '$FLOW',
-    icon: '🌊',
-    mint: 'FLow7xKp3mNq9aRt7kLm4bCx2pQw8mKl9rTxYzAb',
-  },
-  amount: '1,000,000',
-  creator: 'Flo3wKp9mNq8aRt7kLm4bCx2pQw8mKl9rTxYzAbCd',
-  recipient: 'Flo3wKp9mNq8aRt7kLm4bCx2pQw8mKl9rTxYzAbCd',
-  type: 'vesting',
-  status: 'active',
-  createdAt: 'Jan 8, 2026 14:23:01',
-  startDate: 'Jan 8, 2026',
-  endDate: 'Dec 15, 2026',
-  cliffDuration: '90 days',
-  vestingDuration: '365 days',
-  cancelAuthority: 'creator',
-  transferable: true,
+// Mock data - in production, fetch from API
+const mockContract = {
+  address: '4xYz...aBcD',
+  kind: 'lock',
+  state: 'active',
+  sender: '8kJn...xYzW',
+  recipient: '3mQp...vBnM',
+  mint: 'So11...1111',
+  tokenSymbol: 'PEPE',
+  tokenName: 'Pepe Token',
+  tokenDecimals: 9,
+  totalAmount: BigInt('1000000000000'),
+  withdrawnAmount: BigInt('0'),
+  startTs: new Date('2024-01-01'),
+  endTs: new Date('2025-01-01'),
+  createdAt: new Date('2024-01-01'),
+  cancelableBy: 'sender',
+  transferableBy: 'neither',
+  yieldBoostEnabled: true,
   yieldBoost: {
-    enabled: true,
-    buyPrice: '0.000045 SOL',
-    feePaid: '0.45 SOL',
-    matchedStake: '0.45 SOL',
-    yieldAccrued: '2.34 SOL',
-    apy: '7.2%',
+    feePaid: BigInt('500000000'),
+    principalMatched: BigInt('500000000'),
+    estimatedYield: BigInt('37500000'),
+    apy: 7.5,
   },
-  schedule: [
-    { date: 'Apr 8, 2026', amount: '250,000', status: 'pending', pctUnlocked: 25 },
-    { date: 'Jun 8, 2026', amount: '250,000', status: 'pending', pctUnlocked: 50 },
-    { date: 'Sep 8, 2026', amount: '250,000', status: 'pending', pctUnlocked: 75 },
-    { date: 'Dec 8, 2026', amount: '250,000', status: 'pending', pctUnlocked: 100 },
-  ],
-  onChainData: {
-    programId: 'MeMeL0ckPr0gram111111111111111111111111111',
-    lockAccount: '7xKp3mNq9aRt7kLm4bCx2pQw8mKl9rTxYzAbCdEf',
-    tokenVault: '9aRt7kLm4bCx2pQw8mKl9rTxYzAbCdEfGhIjKlMn',
-    merkleRoot: '0x7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f5a6b',
-  },
-  activity: [
-    { epoch: '482', slot: '208,443,291', action: 'Lock Created', amount: '1,000,000 FLOW', hash: '7xKp...3mNq', time: '2026-01-08 14:23:01' },
-    { epoch: '482', slot: '208,443,445', action: 'Boost Enabled', amount: '0.45 SOL', hash: '9aRt...7kLm', time: '2026-01-08 14:24:18' },
-  ],
 };
 
 export default function LockProofPage() {
   const params = useParams();
-  const lock = mockLockData; // In production, fetch by params.address
+  const address = params.address as string;
+  const [copied, setCopied] = useState(false);
+
+  const contract = mockContract;
+  
+  const copyAddress = () => {
+    navigator.clipboard.writeText(address);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const now = new Date();
+  const startTs = new Date(contract.startTs);
+  const endTs = new Date(contract.endTs);
+  const isActive = now >= startTs && now < endTs;
+  const isCompleted = now >= endTs;
+  
+  const progress = Math.min(
+    100,
+    Math.max(0, ((now.getTime() - startTs.getTime()) / (endTs.getTime() - startTs.getTime())) * 100)
+  );
+
+  const formatAmount = (amount: bigint, decimals: number) => {
+    return (Number(amount) / Math.pow(10, decimals)).toLocaleString();
+  };
+
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+  };
 
   return (
-    <main className="max-w-5xl mx-auto px-6 py-16">
-      {/* Breadcrumb */}
-      <div className="mb-8">
-        <Link href="/explore" className="text-sm text-[#8A8A8A] hover:text-[#1A1A1A] transition-colors flex items-center gap-2">
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-          </svg>
-          Back to Explore
-        </Link>
-      </div>
-
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6 mb-12">
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#8CCBBF]/20 to-[#817CCD]/20 flex items-center justify-center text-3xl">
-            {lock.token.icon}
-          </div>
+    <div className="py-12">
+      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="flex items-center gap-3 mb-1">
-              <h1 className="font-editorial text-3xl text-[#1A1A1A]">{lock.token.name} Lock</h1>
-              <span className={`text-[10px] uppercase tracking-[0.1em] px-2 py-1 ${
-                lock.status === 'active' 
-                  ? 'bg-[#50908D]/10 text-[#50908D]' 
-                  : 'bg-[#E5E0D8] text-[#8A8A8A]'
-              }`}>
-                {lock.status}
-              </span>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-2 rounded-xl bg-brand-500/20">
+                <Lock className="h-6 w-6 text-brand-400" />
+              </div>
+              <h1 className="text-2xl font-display font-bold">Lock Certificate</h1>
             </div>
-            <p className="text-sm text-[#8A8A8A] font-mono">{lock.id}</p>
+            <div className="flex items-center gap-2 text-surface-400">
+              <span className="font-mono text-sm">{address}</span>
+              <button onClick={copyAddress} className="p-1 hover:text-white transition-colors">
+                {copied ? <Check className="h-4 w-4 text-success-400" /> : <Copy className="h-4 w-4" />}
+              </button>
+              <a 
+                href={`https://solscan.io/account/${address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1 hover:text-white transition-colors"
+              >
+                <ExternalLink className="h-4 w-4" />
+              </a>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className={`tag ${
+              isCompleted ? 'tag-success' : isActive ? 'tag-brand' : 'tag-warning'
+            }`}>
+              {isCompleted ? 'Completed' : isActive ? 'Active' : 'Scheduled'}
+            </span>
+            <button className="p-2 rounded-xl bg-surface-800 hover:bg-surface-700 transition-colors">
+              <Share2 className="h-5 w-5" />
+            </button>
           </div>
         </div>
-        
-        <div className="flex items-center gap-2">
-          <button className="btn-secondary text-sm">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            Share
-          </button>
-          <a
-            href={`https://solscan.io/account/${lock.onChainData.lockAccount}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn-secondary text-sm"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-            Explorer
-          </a>
-        </div>
-      </div>
 
-      <div className="grid lg:grid-cols-3 gap-8">
-        {/* Main content */}
-        <div className="lg:col-span-2 space-y-8">
-          {/* Overview */}
-          <div className="editorial-card p-6">
-            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Lock Details</h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              <div className="space-y-4">
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Token</span>
-                  <span className="font-mono text-sm">{lock.token.name}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Amount</span>
-                  <span className="font-mono">{lock.amount}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Type</span>
-                  <span className="capitalize">{lock.type}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Created</span>
-                  <span>{lock.createdAt}</span>
-                </div>
+        {/* Main Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="glass-card overflow-hidden"
+        >
+          {/* Token Header */}
+          <div className="p-8 border-b border-surface-800">
+            <div className="flex items-center gap-4">
+              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center text-2xl font-bold">
+                {contract.tokenSymbol?.charAt(0) || '?'}
               </div>
-              <div className="space-y-4">
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Start Date</span>
-                  <span>{lock.startDate}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">End Date</span>
-                  <span>{lock.endDate}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Cliff</span>
-                  <span>{lock.cliffDuration}</span>
-                </div>
-                <div className="flex justify-between py-2 border-b border-[#E5E0D8]">
-                  <span className="text-[#8A8A8A]">Cancel Authority</span>
-                  <span className="capitalize">{lock.cancelAuthority}</span>
-                </div>
+              <div>
+                <h2 className="text-3xl font-display font-bold">
+                  {formatAmount(contract.totalAmount, contract.tokenDecimals)} {contract.tokenSymbol}
+                </h2>
+                <p className="text-surface-400">{contract.tokenName}</p>
               </div>
             </div>
           </div>
 
-          {/* Unlock Schedule */}
-          <div className="editorial-card p-6">
-            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Unlock Schedule</h2>
+          {/* Progress */}
+          <div className="p-8 border-b border-surface-800">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-surface-400">Progress</span>
+              <span className="text-sm font-medium">{progress.toFixed(1)}%</span>
+            </div>
+            <div className="progress-glow">
+              <div 
+                className="progress-glow-fill" 
+                style={{ width: `${progress}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between mt-4 text-sm">
+              <div className="flex items-center gap-2 text-surface-400">
+                <Calendar className="h-4 w-4" />
+                <span>Start: {formatDate(startTs)}</span>
+              </div>
+              <div className="flex items-center gap-2 text-surface-400">
+                <Clock className="h-4 w-4" />
+                <span>End: {formatDate(endTs)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="p-8 grid sm:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-sm font-medium text-surface-400 mb-4">Contract Details</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400 flex items-center gap-2">
+                    <User className="h-4 w-4" /> Sender
+                  </span>
+                  <a 
+                    href={`https://solscan.io/account/${contract.sender}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-sm hover:text-brand-400 transition-colors"
+                  >
+                    {contract.sender}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400 flex items-center gap-2">
+                    <User className="h-4 w-4" /> Recipient
+                  </span>
+                  <a 
+                    href={`https://solscan.io/account/${contract.recipient}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-sm hover:text-brand-400 transition-colors"
+                  >
+                    {contract.recipient}
+                  </a>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400 flex items-center gap-2">
+                    <Coins className="h-4 w-4" /> Token Mint
+                  </span>
+                  <a 
+                    href={`https://solscan.io/token/${contract.mint}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="font-mono text-sm hover:text-brand-400 transition-colors"
+                  >
+                    {contract.mint}
+                  </a>
+                </div>
+              </div>
+            </div>
             
-            {/* Progress bar */}
-            <div className="mb-6">
-              <div className="relative h-3 bg-[#E5E0D8] rounded-full overflow-hidden">
-                <div 
-                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#50908D] to-[#817CCD] rounded-full"
-                  style={{ width: '25%' }}
-                />
-              </div>
-              <div className="flex justify-between mt-2 text-xs text-[#8A8A8A]">
-                <span>0%</span>
-                <span>25% complete</span>
-                <span>100%</span>
-              </div>
-            </div>
-
-            {/* Schedule table */}
-            <div className="space-y-3">
-              {lock.schedule.map((item, i) => (
-                <div key={i} className="flex items-center justify-between p-4 bg-[#FAFAF8] border border-[#E5E0D8]">
-                  <div className="flex items-center gap-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
-                      item.status === 'unlocked' 
-                        ? 'bg-[#50908D] text-white' 
-                        : 'border-2 border-[#E5E0D8] text-[#8A8A8A]'
-                    }`}>
-                      {item.status === 'unlocked' ? '✓' : i + 1}
-                    </div>
-                    <div>
-                      <div className="font-medium text-[#1A1A1A]">{item.date}</div>
-                      <div className="text-xs text-[#8A8A8A]">{item.pctUnlocked}% of total</div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="font-mono text-[#1A1A1A]">{item.amount}</div>
-                    <div className={`text-[10px] uppercase tracking-[0.1em] ${
-                      item.status === 'unlocked' ? 'text-[#50908D]' : 'text-[#8A8A8A]'
-                    }`}>
-                      {item.status}
-                    </div>
-                  </div>
+            <div>
+              <h3 className="text-sm font-medium text-surface-400 mb-4">Permissions</h3>
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400">Cancelable By</span>
+                  <span className="capitalize">{contract.cancelableBy}</span>
                 </div>
-              ))}
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400">Transferable By</span>
+                  <span className="capitalize">{contract.transferableBy}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-surface-400">Type</span>
+                  <span className="tag tag-brand capitalize">{contract.kind}</span>
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* On-Chain Activity */}
-          <div className="editorial-card overflow-hidden">
-            <div className="p-6 border-b border-[#E5E0D8]">
-              <h2 className="font-editorial text-xl text-[#1A1A1A]">On-Chain Activity</h2>
-            </div>
-            <table className="data-table">
-              <thead>
-                <tr className="bg-[#FAFAF8]">
-                  <th className="px-6">Epoch/Slot</th>
-                  <th className="px-6">Action</th>
-                  <th className="px-6">Amount</th>
-                  <th className="px-6">Hash</th>
-                  <th className="px-6">Time</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lock.activity.map((row, i) => (
-                  <tr key={i} className="hover:bg-[#FAFAF8] transition-colors">
-                    <td className="px-6 text-[#8A8A8A]">{row.epoch}/{row.slot}</td>
-                    <td className="px-6">
-                      <span className={`inline-flex items-center gap-1.5 ${
-                        row.action === 'Lock Created' ? 'text-[#50908D]' :
-                        row.action === 'Boost Enabled' ? 'text-[#817CCD]' :
-                        'text-[#C47809]'
-                      }`}>
-                        <span className="w-1.5 h-1.5 rounded-full bg-current" />
-                        {row.action}
-                      </span>
-                    </td>
-                    <td className="px-6">{row.amount}</td>
-                    <td className="px-6 text-[#8A8A8A]">{row.hash}</td>
-                    <td className="px-6 text-[#8A8A8A]">{row.time}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <div className="px-6 py-3 bg-[#FAFAF8] border-t border-[#E5E0D8] text-[11px] text-[#8A8A8A]">
-              Verifiable via Solana Explorer • Merkle root: {lock.onChainData.merkleRoot.slice(0, 20)}...
-            </div>
-          </div>
-        </div>
-
-        {/* Sidebar */}
-        <div className="space-y-6">
-          {/* Yield Boost Card */}
-          {lock.yieldBoost.enabled && (
-            <div className="editorial-card p-6 border-l-2 border-l-[#C47809]">
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-[#C47809]">⚡</span>
-                <span className="text-[10px] uppercase tracking-[0.15em] text-[#C47809] font-medium">Yield Boost Active</span>
+          {/* Yield Boost Section */}
+          {contract.yieldBoostEnabled && contract.yieldBoost && (
+            <div className="p-8 border-t border-surface-800 bg-gradient-to-r from-warning-500/5 to-accent-500/5">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 rounded-xl bg-warning-500/20">
+                  <Zap className="h-5 w-5 text-warning-400" />
+                </div>
+                <h3 className="text-lg font-semibold">Yield Boost Active</h3>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Buy Price Attested</span>
-                  <span className="font-mono">{lock.yieldBoost.buyPrice}</span>
+              <div className="grid sm:grid-cols-3 gap-6">
+                <div className="glass-card p-4">
+                  <div className="text-sm text-surface-400 mb-1">Fee Paid</div>
+                  <div className="text-xl font-semibold">
+                    {formatAmount(contract.yieldBoost.feePaid, 9)} SOL
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Fee Paid</span>
-                  <span className="font-mono">{lock.yieldBoost.feePaid}</span>
+                <div className="glass-card p-4">
+                  <div className="text-sm text-surface-400 mb-1">Total Staked</div>
+                  <div className="text-xl font-semibold text-accent-400">
+                    {formatAmount(contract.yieldBoost.feePaid + contract.yieldBoost.principalMatched, 9)} SOL
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Matched Stake</span>
-                  <span className="font-mono">{lock.yieldBoost.matchedStake}</span>
-                </div>
-                <div className="hairline my-3" />
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Current APY</span>
-                  <span className="text-[#50908D] font-medium">{lock.yieldBoost.apy}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Yield Accrued</span>
-                  <span className="text-[#50908D] font-mono font-medium">+{lock.yieldBoost.yieldAccrued}</span>
+                <div className="glass-card p-4">
+                  <div className="text-sm text-surface-400 mb-1">Est. Yield</div>
+                  <div className="text-xl font-semibold text-success-400">
+                    ~{formatAmount(contract.yieldBoost.estimatedYield, 9)} SOL
+                  </div>
+                  <div className="text-xs text-surface-500 mt-1">
+                    ~{contract.yieldBoost.apy}% APY
+                  </div>
                 </div>
               </div>
-
-              <button className="btn-primary w-full mt-6 justify-center">
-                Claim Yield
-              </button>
             </div>
           )}
 
-          {/* Addresses */}
-          <div className="editorial-card p-6">
-            <h3 className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-4">Addresses</h3>
-            
-            <div className="space-y-4">
+          {/* Verification Badge */}
+          <div className="p-6 border-t border-surface-800 bg-surface-900/50">
+            <div className="flex items-center gap-3">
+              <Shield className="h-5 w-5 text-success-400" />
               <div>
-                <div className="text-xs text-[#8A8A8A] mb-1">Creator</div>
-                <div className="font-mono text-xs text-[#1A1A1A] break-all">{lock.creator}</div>
-              </div>
-              <div>
-                <div className="text-xs text-[#8A8A8A] mb-1">Recipient</div>
-                <div className="font-mono text-xs text-[#1A1A1A] break-all">{lock.recipient}</div>
-              </div>
-              <div>
-                <div className="text-xs text-[#8A8A8A] mb-1">Token Mint</div>
-                <div className="font-mono text-xs text-[#1A1A1A] break-all">{lock.token.mint}</div>
-              </div>
-              <div>
-                <div className="text-xs text-[#8A8A8A] mb-1">Lock Account</div>
-                <div className="font-mono text-xs text-[#1A1A1A] break-all">{lock.onChainData.lockAccount}</div>
+                <p className="text-sm font-medium">Verified On-Chain</p>
+                <p className="text-xs text-surface-400">
+                  This lock is secured by the Solana blockchain and can be independently verified.
+                </p>
               </div>
             </div>
           </div>
+        </motion.div>
 
-          {/* Verification */}
-          <div className="editorial-card p-6 bg-[#FAFAF8]">
-            <div className="flex items-center gap-2 mb-3">
-              <svg className="w-4 h-4 text-[#50908D]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-              </svg>
-              <span className="text-sm font-medium text-[#1A1A1A]">Verified On-Chain</span>
-            </div>
-            <p className="text-xs text-[#8A8A8A] leading-relaxed">
-              This lock is secured by an immutable smart contract on Solana. All data is verifiable through the blockchain explorer.
-            </p>
+        {/* Embed Code */}
+        <div className="mt-8 glass-card p-6">
+          <h3 className="text-lg font-semibold mb-4">Embed Widget</h3>
+          <p className="text-sm text-surface-400 mb-4">
+            Share this lock on your website to build trust with your community.
+          </p>
+          <div className="p-4 bg-surface-900 rounded-xl overflow-x-auto">
+            <code className="text-sm text-brand-400 font-mono whitespace-nowrap">
+              {`<iframe src="https://solflow.io/embed/${address}" width="400" height="200" frameborder="0"></iframe>`}
+            </code>
           </div>
+          <button className="mt-4 text-sm text-brand-400 hover:text-brand-300 transition-colors">
+            Copy embed code
+          </button>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-8 flex flex-wrap gap-4">
+          <Link
+            href="/portfolio"
+            className="px-6 py-3 rounded-xl bg-surface-800 hover:bg-surface-700 transition-colors font-medium"
+          >
+            Back to Portfolio
+          </Link>
+          {isCompleted && (
+            <button className="px-6 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 transition-colors font-medium">
+              Claim Tokens
+            </button>
+          )}
         </div>
       </div>
-    </main>
+    </div>
   );
 }
+

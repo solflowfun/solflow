@@ -1,169 +1,208 @@
 'use client';
 
-// Mock protocol stats
-const protocolStats = {
-  totalValueLocked: '$2.4M',
-  totalLocks: '1,247',
-  activeVesting: '342',
-  yieldDistributed: '892 SOL',
-  uniqueUsers: '3,421',
-  tokensLocked: '156',
+import { FC } from 'react';
+import { motion } from 'framer-motion';
+import { 
+  TrendingUp, Lock, Users, Coins, 
+  ArrowUp, ArrowDown, Activity 
+} from 'lucide-react';
+
+// Mock data
+const stats = {
+  tvl: '$12.5M',
+  tvlChange: 12.5,
+  totalContracts: 1234,
+  activeContracts: 856,
+  totalProjects: 156,
+  yieldBoostActive: 423,
+  totalYieldDistributed: '$45.2K',
 };
 
 const recentActivity = [
-  { time: '2 min ago', action: 'Lock Created', token: '$FLOW', amount: '500,000', user: 'Flo3...x7Kp' },
-  { time: '15 min ago', action: 'Yield Claimed', token: '$MOON', amount: '0.45 SOL', user: 'Mn8a...pQ2w' },
-  { time: '32 min ago', action: 'Vesting Started', token: '$PEPE', amount: '10,000,000', user: 'Pe4x...mN9k' },
-  { time: '1 hr ago', action: 'Lock Unlocked', token: '$DOGE', amount: '2,500,000', user: 'Dg7k...pL3m' },
-  { time: '2 hr ago', action: 'Boost Enabled', token: '$SHIB', amount: '1.2 SOL', user: 'Sh1b...kL9x' },
+  { type: 'lock', token: 'PEPE', amount: '1B', time: '2 min ago' },
+  { type: 'claim', token: 'BONK', amount: '500M', time: '5 min ago' },
+  { type: 'vesting', token: 'WIF', amount: '10M', time: '12 min ago' },
+  { type: 'lock', token: 'POPCAT', amount: '25M', time: '18 min ago' },
+  { type: 'claim', token: 'PEPE', amount: '100M', time: '25 min ago' },
 ];
 
 const topTokens = [
-  { rank: 1, token: '$FLOW', icon: '🌊', locked: '45,000,000', locksCount: 234, yieldEnabled: '78%' },
-  { rank: 2, token: '$MOON', icon: '🌙', locked: '32,000,000', locksCount: 189, yieldEnabled: '65%' },
-  { rank: 3, token: '$PEPE', icon: '🐸', locked: '28,500,000', locksCount: 156, yieldEnabled: '82%' },
-  { rank: 4, token: '$DOGE', icon: '🐕', locked: '21,000,000', locksCount: 142, yieldEnabled: '45%' },
-  { rank: 5, token: '$SHIB', icon: '🐶', locked: '18,200,000', locksCount: 98, yieldEnabled: '71%' },
+  { symbol: 'PEPE', name: 'Pepe Token', tvl: '$3.2M', contracts: 145, change: 8.5 },
+  { symbol: 'BONK', name: 'Bonk', tvl: '$2.8M', contracts: 98, change: -2.3 },
+  { symbol: 'WIF', name: 'dogwifhat', tvl: '$1.9M', contracts: 67, change: 15.2 },
+  { symbol: 'POPCAT', name: 'Popcat', tvl: '$1.2M', contracts: 45, change: 22.1 },
+  { symbol: 'MEW', name: 'cat in a dogs world', tvl: '$890K', contracts: 34, change: -5.7 },
 ];
 
 export default function StatsPage() {
   return (
-    <main className="max-w-6xl mx-auto px-6 py-16">
-      {/* Header */}
-      <div className="mb-12">
-        <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-3">Protocol</div>
-        <h1 className="font-editorial text-4xl text-[#1A1A1A] mb-4">Statistics</h1>
-        <p className="text-[#4A4A4A]">Real-time metrics and activity across the Solflow protocol.</p>
-      </div>
+    <div className="py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-display font-bold mb-4">Protocol Analytics</h1>
+          <p className="text-surface-400">
+            Real-time statistics for SolFlow protocol
+          </p>
+        </div>
 
-      {/* Main Stats Grid */}
-      <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-4 mb-16">
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">TVL</div>
-          <div className="font-editorial text-2xl text-[#1A1A1A]">{protocolStats.totalValueLocked}</div>
-        </div>
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Total Locks</div>
-          <div className="font-editorial text-2xl text-[#1A1A1A]">{protocolStats.totalLocks}</div>
-        </div>
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Active Vesting</div>
-          <div className="font-editorial text-2xl text-[#1A1A1A]">{protocolStats.activeVesting}</div>
-        </div>
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Yield Distributed</div>
-          <div className="font-editorial text-2xl text-[#50908D]">{protocolStats.yieldDistributed}</div>
-        </div>
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Users</div>
-          <div className="font-editorial text-2xl text-[#1A1A1A]">{protocolStats.uniqueUsers}</div>
-        </div>
-        <div className="editorial-card p-6">
-          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Tokens</div>
-          <div className="font-editorial text-2xl text-[#1A1A1A]">{protocolStats.tokensLocked}</div>
-        </div>
-      </div>
-
-      {/* Two column layout */}
-      <div className="grid lg:grid-cols-2 gap-8">
-        {/* Recent Activity */}
-        <div>
-          <h2 className="font-editorial text-2xl text-[#1A1A1A] mb-6">Recent Activity</h2>
-          <div className="editorial-card overflow-hidden">
-            <div className="divide-y divide-[#E5E0D8]">
-              {recentActivity.map((activity, i) => (
-                <div key={i} className="p-4 flex items-center gap-4 hover:bg-[#FAFAF8] transition-colors">
-                  <div className={`w-2 h-2 rounded-full ${
-                    activity.action === 'Lock Created' ? 'bg-[#50908D]' :
-                    activity.action === 'Yield Claimed' ? 'bg-[#C47809]' :
-                    activity.action === 'Vesting Started' ? 'bg-[#817CCD]' :
-                    activity.action === 'Lock Unlocked' ? 'bg-[#8CCBBF]' :
-                    'bg-[#E08B46]'
-                  }`} />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="font-medium text-[#1A1A1A]">{activity.action}</span>
-                      <span className="text-[#8A8A8A]">•</span>
-                      <span className="text-[#4A4A4A]">{activity.token}</span>
-                    </div>
-                    <div className="text-xs text-[#8A8A8A] mt-0.5">
-                      {activity.amount} by {activity.user}
-                    </div>
-                  </div>
-                  <div className="text-xs text-[#8A8A8A]">{activity.time}</div>
-                </div>
-              ))}
+        {/* Main Stats */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-brand-500/20">
+                <Coins className="h-6 w-6 text-brand-400" />
+              </div>
+              <div className={`flex items-center gap-1 text-sm ${stats.tvlChange > 0 ? 'text-success-400' : 'text-error-400'}`}>
+                {stats.tvlChange > 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                {Math.abs(stats.tvlChange)}%
+              </div>
             </div>
-          </div>
+            <div className="text-3xl font-display font-bold gradient-text">{stats.tvl}</div>
+            <div className="text-sm text-surface-400 mt-1">Total Value Locked</div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-accent-500/20">
+                <Lock className="h-6 w-6 text-accent-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-display font-bold">{stats.totalContracts.toLocaleString()}</div>
+            <div className="text-sm text-surface-400 mt-1">Total Contracts</div>
+            <div className="text-xs text-accent-400 mt-2">{stats.activeContracts} active</div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-success-500/20">
+                <Users className="h-6 w-6 text-success-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-display font-bold">{stats.totalProjects}</div>
+            <div className="text-sm text-surface-400 mt-1">Projects</div>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+            className="glass-card p-6"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="p-3 rounded-xl bg-warning-500/20">
+                <TrendingUp className="h-6 w-6 text-warning-400" />
+              </div>
+            </div>
+            <div className="text-3xl font-display font-bold">{stats.totalYieldDistributed}</div>
+            <div className="text-sm text-surface-400 mt-1">Yield Distributed</div>
+            <div className="text-xs text-warning-400 mt-2">{stats.yieldBoostActive} active boosts</div>
+          </motion.div>
         </div>
 
-        {/* Top Tokens */}
-        <div>
-          <h2 className="font-editorial text-2xl text-[#1A1A1A] mb-6">Top Tokens</h2>
-          <div className="editorial-card overflow-hidden">
-            <table className="data-table">
-              <thead>
-                <tr className="bg-[#FAFAF8]">
-                  <th className="px-4">#</th>
-                  <th className="px-4">Token</th>
-                  <th className="px-4 text-right">Locked</th>
-                  <th className="px-4 text-right">Locks</th>
-                  <th className="px-4 text-right">Yield</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topTokens.map((token) => (
-                  <tr key={token.rank} className="hover:bg-[#FAFAF8] transition-colors">
-                    <td className="px-4 text-[#8A8A8A]">{token.rank}</td>
-                    <td className="px-4">
-                      <div className="flex items-center gap-2">
-                        <span>{token.icon}</span>
-                        <span className="font-medium text-[#1A1A1A]">{token.token}</span>
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Top Tokens */}
+          <div className="lg:col-span-2">
+            <div className="glass-card p-6">
+              <h3 className="text-lg font-semibold mb-6">Top Tokens by TVL</h3>
+              <div className="space-y-4">
+                {topTokens.map((token, index) => (
+                  <motion.div
+                    key={token.symbol}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-surface-800/50 hover:bg-surface-800 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center font-bold">
+                        {token.symbol.charAt(0)}
                       </div>
-                    </td>
-                    <td className="px-4 text-right">{token.locked}</td>
-                    <td className="px-4 text-right text-[#8A8A8A]">{token.locksCount}</td>
-                    <td className="px-4 text-right text-[#50908D]">{token.yieldEnabled}</td>
-                  </tr>
+                      <div>
+                        <div className="font-medium">{token.symbol}</div>
+                        <div className="text-sm text-surface-400">{token.name}</div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-8">
+                      <div className="text-right">
+                        <div className="font-medium">{token.tvl}</div>
+                        <div className="text-xs text-surface-400">{token.contracts} contracts</div>
+                      </div>
+                      <div className={`flex items-center gap-1 text-sm min-w-[60px] justify-end ${
+                        token.change > 0 ? 'text-success-400' : 'text-error-400'
+                      }`}>
+                        {token.change > 0 ? <ArrowUp className="h-3 w-3" /> : <ArrowDown className="h-3 w-3" />}
+                        {Math.abs(token.change)}%
+                      </div>
+                    </div>
+                  </motion.div>
                 ))}
-              </tbody>
-            </table>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
 
-      {/* Protocol Health */}
-      <div className="mt-16">
-        <h2 className="font-editorial text-2xl text-[#1A1A1A] mb-6">Protocol Health</h2>
-        <div className="editorial-card p-8">
-          <div className="grid md:grid-cols-3 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-3 h-3 rounded-full bg-[#50908D]" />
-                <span className="text-sm font-medium text-[#1A1A1A]">Staking Pool</span>
+          {/* Recent Activity */}
+          <div className="lg:col-span-1">
+            <div className="glass-card p-6 sticky top-24">
+              <h3 className="text-lg font-semibold mb-6 flex items-center gap-2">
+                <Activity className="h-5 w-5 text-brand-400" />
+                Recent Activity
+              </h3>
+              <div className="space-y-4">
+                {recentActivity.map((activity, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="flex items-center justify-between py-3 border-b border-surface-800 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        activity.type === 'lock' ? 'bg-brand-500/20' :
+                        activity.type === 'claim' ? 'bg-success-500/20' : 'bg-accent-500/20'
+                      }`}>
+                        <Lock className={`h-4 w-4 ${
+                          activity.type === 'lock' ? 'text-brand-400' :
+                          activity.type === 'claim' ? 'text-success-400' : 'text-accent-400'
+                        }`} />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium capitalize">{activity.type}</div>
+                        <div className="text-xs text-surface-400">{activity.amount} {activity.token}</div>
+                      </div>
+                    </div>
+                    <span className="text-xs text-surface-500">{activity.time}</span>
+                  </motion.div>
+                ))}
               </div>
-              <div className="text-sm text-[#4A4A4A] mb-2">Total staked in LST pool for yield distribution</div>
-              <div className="font-mono text-xl text-[#1A1A1A]">1,245 SOL</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-3 h-3 rounded-full bg-[#817CCD]" />
-                <span className="text-sm font-medium text-[#1A1A1A]">Average APY</span>
-              </div>
-              <div className="text-sm text-[#4A4A4A] mb-2">Yield boost returns across all enabled locks</div>
-              <div className="font-mono text-xl text-[#50908D]">7.2%</div>
-            </div>
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-3 h-3 rounded-full bg-[#C47809]" />
-                <span className="text-sm font-medium text-[#1A1A1A]">Treasury</span>
-              </div>
-              <div className="text-sm text-[#4A4A4A] mb-2">Protocol fees collected (multisig-controlled)</div>
-              <div className="font-mono text-xl text-[#1A1A1A]">342 SOL</div>
             </div>
           </div>
         </div>
+
+        {/* Chart Placeholder */}
+        <div className="mt-8 glass-card p-6">
+          <h3 className="text-lg font-semibold mb-6">TVL Over Time</h3>
+          <div className="h-64 flex items-center justify-center border border-dashed border-surface-700 rounded-xl">
+            <span className="text-surface-500">Chart visualization would go here</span>
+          </div>
+        </div>
       </div>
-    </main>
+    </div>
   );
 }
+

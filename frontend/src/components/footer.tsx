@@ -1,120 +1,65 @@
 'use client';
 
+import { FC } from 'react';
 import Link from 'next/link';
+import { Lock, Twitter, Github } from 'lucide-react';
 
-export function Footer() {
+export const Footer: FC = () => {
   return (
-    <footer className="border-t border-[#E5E0D8] bg-[var(--parchment)]">
-      <div className="max-w-7xl mx-auto px-6 lg:px-16 py-12">
-        {/* Top section */}
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
+    <footer className="border-t border-surface-800/30 mt-auto">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Brand */}
-          <div className="md:col-span-2">
-            <div className="flex items-center gap-3 mb-4">
-              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                  <linearGradient id="footerLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stopColor="#50908D" />
-                    <stop offset="50%" stopColor="#817CCD" />
-                    <stop offset="100%" stopColor="#C47809" />
-                  </linearGradient>
-                </defs>
-                <circle cx="16" cy="16" r="14" stroke="url(#footerLogoGrad)" strokeWidth="2" fill="none" />
-                <path
-                  d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z"
-                  stroke="url(#footerLogoGrad)"
-                  strokeWidth="1.5"
-                  fill="none"
-                />
-                <circle cx="16" cy="16" r="2" fill="url(#footerLogoGrad)" />
-              </svg>
-              <div className="h-5 w-[1px] bg-[#C47809]" />
-              <span className="font-editorial text-lg gradient-wordmark">SOLFLOW</span>
+          <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="flex h-6 w-6 items-center justify-center rounded-md bg-gradient-to-br from-teal-500 to-violet-500">
+                <Lock className="h-3 w-3 text-white" />
+              </div>
+              <span className="font-display text-sm font-semibold tracking-tight">
+                SolFlow
+              </span>
+            </Link>
+            <div className="hidden sm:flex items-center gap-6 text-xs text-surface-500">
+              <Link href="/create" className="hover:text-surface-300 transition-colors">
+                Create
+              </Link>
+              <Link href="/explore" className="hover:text-surface-300 transition-colors">
+                Explore
+              </Link>
+              <Link href="/stats" className="hover:text-surface-300 transition-colors">
+                Stats
+              </Link>
             </div>
-            <p className="text-sm text-[#8A8A8A] max-w-xs leading-relaxed">
-              Token locking and vesting infrastructure for Solana. Build trust with public proof pages.
-            </p>
           </div>
 
-          {/* Links */}
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">Product</div>
-            <ul className="space-y-2">
-              <li>
-                <Link href="/create" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
-                  Create Lock
-                </Link>
-              </li>
-              <li>
-                <Link href="/explore" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
-                  Explore
-                </Link>
-              </li>
-              <li>
-                <Link href="/portfolio" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
-                  Portfolio
-                </Link>
-              </li>
-              <li>
-                <Link href="/stats" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
-                  Stats
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          <div>
-            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">Resources</div>
-            <ul className="space-y-2">
-              <li>
-                <a
-                  href="https://docs.solflow.fun"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
-                >
-                  Documentation
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://github.com/solflowfun"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
-                >
-                  GitHub
-                </a>
-              </li>
-              <li>
-                <a
-                  href="https://x.com/solflowdotfun"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
-                >
-                  X (Twitter)
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="hairline mb-6" />
-
-        {/* Bottom section */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#8A8A8A]">
-          <p>© 2026 Solflow. All rights reserved.</p>
+          {/* Social + Copyright */}
           <div className="flex items-center gap-6">
-            <a href="https://solflow.fun" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A1A1A] transition-colors">
-              solflow.fun
-            </a>
-            <span className="text-[#D4CFC4]">•</span>
-            <span>Built on Solana</span>
+            <div className="flex items-center gap-3">
+              <a 
+                href="https://x.com/solflowdotfun" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-md text-surface-500 hover:text-surface-300 hover:bg-surface-800/30 transition-colors"
+                aria-label="Twitter"
+              >
+                <Twitter className="h-4 w-4" />
+              </a>
+              <a 
+                href="https://github.com/solflowfun/solflow" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="p-1.5 rounded-md text-surface-500 hover:text-surface-300 hover:bg-surface-800/30 transition-colors"
+                aria-label="GitHub"
+              >
+                <Github className="h-4 w-4" />
+              </a>
+            </div>
+            <span className="text-xs text-surface-600">
+              © 2026 SolFlow
+            </span>
           </div>
         </div>
       </div>
     </footer>
   );
-}
+};

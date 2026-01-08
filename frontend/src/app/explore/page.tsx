@@ -1,225 +1,278 @@
 'use client';
 
-import { useState } from 'react';
+import { FC, useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
+import { 
+  Search, Filter, Lock, Clock, ArrowUpRight, 
+  TrendingUp, Users, Coins, ChevronDown 
+} from 'lucide-react';
 
-// Mock data for demo
-const mockLocks = [
+// Mock data
+const mockContracts = [
   {
-    id: '7xKp3mNq',
-    token: '$FLOW',
-    tokenIcon: '🌊',
-    amount: '1,000,000',
-    creator: 'Flo3...x7Kp',
-    recipient: 'Flo3...x7Kp',
-    type: 'vesting',
-    status: 'active',
-    unlockDate: 'Dec 15, 2026',
-    progress: 25,
+    address: '4xYz...aBcD',
+    kind: 'lock',
+    state: 'active',
+    tokenSymbol: 'PEPE',
+    tokenName: 'Pepe Token',
+    totalAmount: '1,000,000,000',
+    unlockDate: '2025-01-01',
+    sender: '8kJn...xYzW',
+    project: 'Pepe Protocol',
+    verified: true,
     yieldBoost: true,
-    yieldAccrued: '2.34 SOL',
   },
   {
-    id: '9aRt7kLm',
-    token: '$MOON',
-    tokenIcon: '🌙',
-    amount: '500,000',
-    creator: 'Mn8a...pQ2w',
-    recipient: 'Mn8a...pQ2w',
-    type: 'lock',
-    status: 'active',
-    unlockDate: 'Jun 1, 2026',
-    progress: 45,
+    address: '7kLm...nOpQ',
+    kind: 'vesting',
+    state: 'active',
+    tokenSymbol: 'BONK',
+    tokenName: 'Bonk',
+    totalAmount: '500,000,000,000',
+    unlockDate: '2024-12-31',
+    sender: '3mQp...vBnM',
+    project: 'Bonk DAO',
+    verified: true,
     yieldBoost: false,
-    yieldAccrued: null,
   },
   {
-    id: '4bCx2pQw',
-    token: '$PEPE',
-    tokenIcon: '🐸',
-    amount: '10,000,000',
-    creator: 'Pe4x...mN9k',
-    recipient: 'Te4m...wLl7',
-    type: 'vesting',
-    status: 'active',
-    unlockDate: 'Mar 30, 2027',
-    progress: 10,
+    address: '9rSt...uVwX',
+    kind: 'lock',
+    state: 'active',
+    tokenSymbol: 'WIF',
+    tokenName: 'dogwifhat',
+    totalAmount: '100,000,000',
+    unlockDate: '2025-06-01',
+    sender: '5nTu...wXyZ',
+    project: null,
+    verified: false,
     yieldBoost: true,
-    yieldAccrued: '0.87 SOL',
-  },
-  {
-    id: '2mKl9rTx',
-    token: '$DOGE',
-    tokenIcon: '🐕',
-    amount: '2,500,000',
-    creator: 'Dg7k...pL3m',
-    recipient: 'Dg7k...pL3m',
-    type: 'lock',
-    status: 'unlocked',
-    unlockDate: 'Jan 1, 2026',
-    progress: 100,
-    yieldBoost: false,
-    yieldAccrued: null,
   },
 ];
 
-type FilterType = 'all' | 'lock' | 'vesting';
-type FilterStatus = 'all' | 'active' | 'unlocked';
+const topProjects = [
+  { name: 'Pepe Protocol', tvl: '$2.5M', locks: 12, verified: true },
+  { name: 'Bonk DAO', tvl: '$1.8M', locks: 8, verified: true },
+  { name: 'Dogwifhat', tvl: '$950K', locks: 5, verified: false },
+  { name: 'Popcat', tvl: '$720K', locks: 4, verified: false },
+];
 
 export default function ExplorePage() {
-  const [filterType, setFilterType] = useState<FilterType>('all');
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredLocks = mockLocks.filter(lock => {
-    if (filterType !== 'all' && lock.type !== filterType) return false;
-    if (filterStatus !== 'all' && lock.status !== filterStatus) return false;
-    if (searchQuery && !lock.token.toLowerCase().includes(searchQuery.toLowerCase()) && !lock.id.includes(searchQuery)) return false;
-    return true;
-  });
+  const [filter, setFilter] = useState('all');
 
   return (
-    <main className="max-w-6xl mx-auto px-6 py-16">
-      {/* Header */}
-      <div className="mb-12">
-        <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-3">Explore</div>
-        <h1 className="font-editorial text-4xl text-[#1A1A1A] mb-4">Token Locks</h1>
-        <p className="text-[#4A4A4A]">Browse public proof pages for token locks and vesting schedules.</p>
-      </div>
+    <div className="py-12">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <h1 className="text-3xl font-display font-bold mb-4">Explore Locks</h1>
+          <p className="text-surface-400 max-w-2xl mx-auto">
+            Browse and verify token locks across Solana projects
+          </p>
+        </div>
 
-      {/* Filters */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-4 mb-8">
         {/* Search */}
-        <div className="relative flex-1 max-w-md">
-          <svg className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8A8A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by token or ID..."
-            className="w-full pl-11 pr-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#50908D] text-sm"
-          />
+        <div className="max-w-2xl mx-auto mb-12">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-surface-500" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search by contract address, token, or project..."
+              className="input-glow w-full pl-12 pr-4 py-4 text-lg"
+            />
+          </div>
         </div>
 
-        {/* Type filter */}
-        <div className="flex gap-2">
-          {(['all', 'lock', 'vesting'] as FilterType[]).map((type) => (
-            <button
-              key={type}
-              onClick={() => setFilterType(type)}
-              className={`px-4 py-2 text-sm border transition-all capitalize ${
-                filterType === type
-                  ? 'border-[#50908D] bg-[#50908D]/5 text-[#50908D]'
-                  : 'border-[#E5E0D8] text-[#4A4A4A] hover:border-[#D4CFC4]'
-              }`}
-            >
-              {type}
-            </button>
-          ))}
-        </div>
-
-        {/* Status filter */}
-        <div className="flex gap-2">
-          {(['all', 'active', 'unlocked'] as FilterStatus[]).map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilterStatus(status)}
-              className={`px-4 py-2 text-sm border transition-all capitalize ${
-                filterStatus === status
-                  ? 'border-[#817CCD] bg-[#817CCD]/5 text-[#817CCD]'
-                  : 'border-[#E5E0D8] text-[#4A4A4A] hover:border-[#D4CFC4]'
-              }`}
-            >
-              {status}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Results count */}
-      <div className="text-sm text-[#8A8A8A] mb-6">
-        {filteredLocks.length} lock{filteredLocks.length !== 1 ? 's' : ''} found
-      </div>
-
-      {/* Locks grid */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {filteredLocks.map((lock) => (
-          <Link
-            key={lock.id}
-            href={`/locks/${lock.id}`}
-            className="editorial-card p-6 hover:shadow-md transition-shadow group"
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#8CCBBF]/20 to-[#817CCD]/20 flex items-center justify-center text-xl">
-                  {lock.tokenIcon}
-                </div>
+        <div className="grid lg:grid-cols-4 gap-8">
+          {/* Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="glass-card p-6 sticky top-24">
+              <h3 className="font-semibold mb-4 flex items-center gap-2">
+                <Filter className="h-4 w-4" />
+                Filters
+              </h3>
+              
+              <div className="space-y-6">
                 <div>
-                  <div className="font-medium text-[#1A1A1A] group-hover:text-[#50908D] transition-colors">
-                    {lock.token}
+                  <label className="text-sm text-surface-400 mb-2 block">Type</label>
+                  <div className="space-y-2">
+                    {['all', 'lock', 'vesting'].map((type) => (
+                      <button
+                        key={type}
+                        onClick={() => setFilter(type)}
+                        className={`w-full px-4 py-2 rounded-lg text-left text-sm transition-colors ${
+                          filter === type
+                            ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
+                            : 'hover:bg-surface-800'
+                        }`}
+                      >
+                        {type === 'all' ? 'All Types' : type.charAt(0).toUpperCase() + type.slice(1)}
+                      </button>
+                    ))}
                   </div>
-                  <div className="text-xs text-[#8A8A8A] font-mono">{lock.id}</div>
+                </div>
+
+                <div>
+                  <label className="text-sm text-surface-400 mb-2 block">Status</label>
+                  <div className="space-y-2">
+                    {['active', 'scheduled', 'completed'].map((status) => (
+                      <button
+                        key={status}
+                        className="w-full px-4 py-2 rounded-lg text-left text-sm hover:bg-surface-800 transition-colors"
+                      >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" className="rounded border-surface-600" />
+                    <span className="text-sm">Yield Boost only</span>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" className="rounded border-surface-600" />
+                    <span className="text-sm">Verified projects only</span>
+                  </label>
                 </div>
               </div>
-              <div className={`text-[10px] uppercase tracking-[0.1em] px-2 py-1 ${
-                lock.status === 'active' 
-                  ? 'bg-[#50908D]/10 text-[#50908D]' 
-                  : 'bg-[#E5E0D8] text-[#8A8A8A]'
-              }`}>
-                {lock.status}
-              </div>
-            </div>
 
-            {/* Details */}
-            <div className="space-y-3 mb-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-[#8A8A8A]">Amount</span>
-                <span className="font-mono">{lock.amount}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#8A8A8A]">Type</span>
-                <span className="capitalize">{lock.type}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-[#8A8A8A]">Unlock</span>
-                <span>{lock.unlockDate}</span>
-              </div>
-              {lock.yieldBoost && lock.yieldAccrued && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-[#8A8A8A]">Yield Accrued</span>
-                  <span className="text-[#50908D] font-mono">+{lock.yieldAccrued}</span>
+              {/* Top Projects */}
+              <div className="mt-8 pt-6 border-t border-surface-800">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4" />
+                  Top Projects
+                </h3>
+                <div className="space-y-3">
+                  {topProjects.map((project, index) => (
+                    <Link
+                      key={project.name}
+                      href={`/project/${project.name.toLowerCase().replace(/\s+/g, '-')}`}
+                      className="flex items-center justify-between p-3 rounded-lg hover:bg-surface-800/50 transition-colors"
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm text-surface-500">{index + 1}</span>
+                        <div>
+                          <div className="text-sm font-medium flex items-center gap-1">
+                            {project.name}
+                            {project.verified && (
+                              <span className="w-3 h-3 rounded-full bg-success-500 flex items-center justify-center text-[8px]">✓</span>
+                            )}
+                          </div>
+                          <div className="text-xs text-surface-500">{project.locks} locks</div>
+                        </div>
+                      </div>
+                      <span className="text-sm font-medium text-brand-400">{project.tvl}</span>
+                    </Link>
+                  ))}
                 </div>
-              )}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content */}
+          <div className="lg:col-span-3">
+            {/* Results Count */}
+            <div className="flex items-center justify-between mb-6">
+              <span className="text-surface-400">
+                Showing {mockContracts.length} results
+              </span>
+              <button className="flex items-center gap-2 text-sm text-surface-400 hover:text-white">
+                Sort by: Recent
+                <ChevronDown className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* Progress bar */}
-            <div className="relative h-1 bg-[#E5E0D8] rounded-full overflow-hidden">
-              <div 
-                className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#50908D] to-[#817CCD] rounded-full transition-all"
-                style={{ width: `${lock.progress}%` }}
-              />
+            {/* Contracts Grid */}
+            <div className="space-y-4">
+              {mockContracts.map((contract, index) => (
+                <motion.div
+                  key={contract.address}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <Link
+                    href={`/locks/${contract.address}`}
+                    className="glass-card-hover p-6 block group"
+                  >
+                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center text-xl font-bold shrink-0">
+                          {contract.tokenSymbol.charAt(0)}
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-lg font-semibold">
+                              {contract.totalAmount} {contract.tokenSymbol}
+                            </span>
+                            <span className={`tag ${contract.kind === 'lock' ? 'tag-brand' : 'tag-accent'}`}>
+                              {contract.kind}
+                            </span>
+                            {contract.yieldBoost && (
+                              <span className="tag tag-warning">Yield Boost</span>
+                            )}
+                            {contract.verified && (
+                              <span className="tag tag-success">Verified</span>
+                            )}
+                          </div>
+                          <div className="text-sm text-surface-400 mt-1">
+                            {contract.tokenName}
+                          </div>
+                          {contract.project && (
+                            <div className="text-sm text-brand-400 mt-1">
+                              {contract.project}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-4 mt-3 text-sm text-surface-500">
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              {contract.sender}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Clock className="h-4 w-4" />
+                              Unlocks {contract.unlockDate}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      <ArrowUpRight className="h-5 w-5 text-surface-500 group-hover:text-brand-400 transition-colors shrink-0" />
+                    </div>
+                  </Link>
+                </motion.div>
+              ))}
             </div>
-            <div className="flex justify-between mt-2 text-xs text-[#8A8A8A]">
-              <span>{lock.progress}% unlocked</span>
-              {lock.yieldBoost && (
-                <span className="text-[#C47809]">⚡ Yield Boost</span>
-              )}
-            </div>
-          </Link>
-        ))}
-      </div>
 
-      {/* Empty state */}
-      {filteredLocks.length === 0 && (
-        <div className="text-center py-16">
-          <div className="text-4xl mb-4">🔍</div>
-          <p className="text-[#4A4A4A] mb-2">No locks found</p>
-          <p className="text-sm text-[#8A8A8A]">Try adjusting your filters or search query.</p>
+            {/* Pagination */}
+            <div className="flex items-center justify-center gap-2 mt-8">
+              <button className="px-4 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 text-sm">
+                Previous
+              </button>
+              <button className="px-4 py-2 rounded-lg bg-brand-500/20 text-brand-400 text-sm">
+                1
+              </button>
+              <button className="px-4 py-2 rounded-lg hover:bg-surface-800 text-sm">
+                2
+              </button>
+              <button className="px-4 py-2 rounded-lg hover:bg-surface-800 text-sm">
+                3
+              </button>
+              <button className="px-4 py-2 rounded-lg bg-surface-800 hover:bg-surface-700 text-sm">
+                Next
+              </button>
+            </div>
+          </div>
         </div>
-      )}
-    </main>
+      </div>
+    </div>
   );
 }
+
