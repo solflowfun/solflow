@@ -42,9 +42,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en">
       <body 
-        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${clashDisplay.variable} font-sans bg-surface-950 text-white antialiased`}
+        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${clashDisplay.variable} font-sans`}
       >
         <Providers>
           <div className="flex min-h-screen flex-col">
