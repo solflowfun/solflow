@@ -8,10 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, Lock, BarChart3, Wallet, Search } from 'lucide-react';
 
 const navItems = [
-  { href: '/create', label: 'Create', icon: Lock },
-  { href: '/portfolio', label: 'Portfolio', icon: Wallet },
-  { href: '/explore', label: 'Explore', icon: Search },
-  { href: '/stats', label: 'Stats', icon: BarChart3 },
+  { href: '/create', label: 'Create' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/explore', label: 'Explore' },
+  { href: '/stats', label: 'Stats' },
 ];
 
 export const Navbar: FC = () => {
@@ -19,13 +19,13 @@ export const Navbar: FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-cream-400/50 bg-cream-200/80 backdrop-blur-xl">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 bg-cream-200/90 backdrop-blur-md border-b border-cream-400/30">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div 
-              className="flex h-8 w-8 items-center justify-center rounded-lg shadow-soft"
+              className="flex h-8 w-8 items-center justify-center rounded-lg"
               style={{ background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%)' }}
             >
               <Lock className="h-4 w-4 text-white" />
@@ -36,7 +36,7 @@ export const Navbar: FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          <div className="hidden md:flex items-center gap-8">
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
               
@@ -44,20 +44,21 @@ export const Navbar: FC = () => {
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+                  className={`relative text-sm transition-colors ${
                     isActive
-                      ? 'text-charcoal-800'
+                      ? 'text-charcoal-800 font-medium'
                       : 'text-charcoal-500 hover:text-ember-red'
                   }`}
                 >
+                  {item.label}
                   {isActive && (
                     <motion.div
-                      layoutId="navbar-indicator"
-                      className="absolute inset-0 bg-cream-50 rounded-full border border-cream-400/50 shadow-soft"
+                      layoutId="navbar-underline"
+                      className="absolute -bottom-1 left-0 right-0 h-0.5"
+                      style={{ background: 'linear-gradient(90deg, #D5522E, #E08B46)' }}
                       transition={{ type: 'spring', bounce: 0.2, duration: 0.5 }}
                     />
                   )}
-                  <span className="relative">{item.label}</span>
                 </Link>
               );
             })}
@@ -65,7 +66,7 @@ export const Navbar: FC = () => {
 
           {/* Wallet Button */}
           <div className="flex items-center gap-3">
-            <WalletMultiButton className="!h-9 !px-4 !text-sm !font-medium" />
+            <WalletMultiButton className="!h-9 !px-4" />
             
             {/* Mobile menu button */}
             <button
@@ -89,25 +90,23 @@ export const Navbar: FC = () => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t border-cream-400/50 bg-cream-200/95 backdrop-blur-xl"
+            className="md:hidden border-t border-cream-400/30 bg-cream-200/95 backdrop-blur-md"
           >
-            <div className="px-4 py-3 space-y-1">
+            <div className="px-4 py-4 space-y-1">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
-                const Icon = item.icon;
                 
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
+                    className={`block px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
                       isActive
-                        ? 'bg-cream-50 text-charcoal-800 border border-cream-400/50'
+                        ? 'bg-cream-100 text-charcoal-800'
                         : 'text-charcoal-500 hover:text-ember-red hover:bg-cream-300/30'
                     }`}
                   >
-                    <Icon className="h-4 w-4" />
                     {item.label}
                   </Link>
                 );
