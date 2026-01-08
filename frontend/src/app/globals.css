@@ -4,72 +4,100 @@
 
 @layer base {
   :root {
-    --background: 12 12 13;
-    --foreground: 250 250 250;
+    --background: 246 241 232;
+    --foreground: 30 26 22;
   }
 
   * {
-    @apply border-surface-800/50;
+    @apply border-cream-500/30;
   }
 
   body {
-    @apply bg-surface-950 text-white antialiased;
+    @apply bg-cream-300 text-charcoal-800 antialiased;
+    /* Subtle grain texture overlay */
     background-image: 
-      radial-gradient(ellipse 100% 100% at 50% -30%, rgba(20, 184, 166, 0.08), transparent),
-      radial-gradient(ellipse 80% 80% at 80% 120%, rgba(249, 115, 22, 0.06), transparent),
-      radial-gradient(ellipse 60% 60% at 20% 100%, rgba(239, 68, 68, 0.04), transparent);
-    background-attachment: fixed;
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-blend-mode: overlay;
+    background-size: 200px 200px;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(246, 241, 232, 0) 0%, rgba(237, 230, 217, 0.5) 100%);
+    pointer-events: none;
+    z-index: -1;
   }
 
   /* Minimal scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    @apply bg-transparent;
+    @apply bg-cream-400/50;
   }
 
   ::-webkit-scrollbar-thumb {
-    @apply bg-surface-700/50 rounded-full;
+    @apply bg-cream-600 rounded-full;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    @apply bg-surface-600/50;
+    @apply bg-cream-700;
   }
 
-  /* Selection */
+  /* Selection with ember accent */
   ::selection {
-    @apply bg-orange-500/30 text-white;
+    background: rgba(213, 82, 46, 0.15);
+    color: #1E1A16;
   }
 }
 
 @layer components {
-  /* Glass cards */
-  .glass-card {
-    @apply bg-surface-900/40 backdrop-blur-sm border border-surface-800/50 rounded-2xl;
+  /* Soft parchment cards */
+  .card {
+    @apply bg-cream-100 border border-cream-500/20 rounded-2xl shadow-soft;
   }
 
-  .glass-card-hover {
-    @apply glass-card transition-all duration-200 hover:border-surface-700/50;
+  .card-hover {
+    @apply card transition-all duration-200 hover:shadow-soft-lg hover:border-cream-500/30;
   }
 
-  /* Input styling */
-  .input-minimal {
-    @apply bg-surface-900/30 border border-surface-800/50 rounded-xl px-4 py-3 
-           focus:outline-none focus:border-orange-500/50 
-           transition-colors duration-150 placeholder:text-surface-600;
+  /* Input styling - warm and minimal */
+  .input-field {
+    @apply bg-cream-100 border border-cream-500/30 rounded-xl px-4 py-3 
+           text-charcoal-800 placeholder:text-charcoal-400
+           focus:outline-none focus:border-ember-orange/50 focus:ring-1 focus:ring-ember-orange/20
+           transition-all duration-150;
   }
 
-  /* Progress bar with flow gradient */
-  .progress-flow {
-    @apply h-1 rounded-full bg-surface-800 overflow-hidden;
+  /* Ember gradient button */
+  .btn-ember {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full 
+           text-white font-medium text-sm
+           shadow-ember-glow hover:shadow-ember-glow-lg
+           transition-all duration-200;
+    background: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%);
   }
 
-  .progress-fill {
-    @apply h-full rounded-full;
-    background: linear-gradient(90deg, #14b8a6 0%, #f97316 50%, #ef4444 100%);
+  .btn-ember:hover {
+    background: linear-gradient(135deg, #C44A28 0%, #D07F3E 50%, #B36D08 100%);
+  }
+
+  /* Ghost/outline button */
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full
+           border border-cream-600 text-charcoal-700 font-medium text-sm
+           hover:bg-cream-400/50 hover:border-charcoal-400
+           transition-all duration-200;
+  }
+
+  /* Ember gradient text */
+  .text-ember {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%);
   }
 
   /* Tag/badge variants */
@@ -77,64 +105,71 @@
     @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 
+  .tag-ember {
+    @apply tag text-ember-red bg-ember-red/10 border border-ember-red/20;
+  }
+
   .tag-teal {
-    @apply tag bg-teal-500/10 text-teal-400 border border-teal-500/20;
-  }
-
-  .tag-orange {
-    @apply tag bg-orange-500/10 text-orange-400 border border-orange-500/20;
-  }
-
-  .tag-coral {
-    @apply tag bg-coral-500/10 text-coral-400 border border-coral-500/20;
+    @apply tag text-accent-teal bg-accent-teal/10 border border-accent-teal/20;
   }
 
   .tag-neutral {
-    @apply tag bg-surface-800/50 text-surface-400;
+    @apply tag text-charcoal-600 bg-cream-400/50 border border-cream-500/30;
+  }
+
+  /* Divider with ember accent */
+  .divider-ember {
+    @apply h-px w-full;
+    background: linear-gradient(90deg, transparent 0%, #D5522E 20%, #E08B46 50%, #C47809 80%, transparent 100%);
   }
 }
 
 @layer utilities {
-  /* Flow gradient text */
-  .text-flow-gradient {
-    @apply bg-clip-text text-transparent;
-    background-image: linear-gradient(135deg, #14b8a6 0%, #f97316 50%, #ef4444 100%);
+  /* Subtle grain overlay for sections */
+  .grain {
+    position: relative;
   }
 
-  /* Subtle glow for active elements */
-  .glow-soft {
-    box-shadow: 0 0 30px rgba(249, 115, 22, 0.2);
-  }
-
-  /* Timeline utilities */
-  .timeline-rail {
-    @apply w-[2px] bg-surface-800;
-  }
-
-  .timeline-rail-fill {
-    @apply w-[2px];
-    background: linear-gradient(180deg, #14b8a6 0%, #f97316 50%, #ef4444 100%);
+  .grain::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    opacity: 0.03;
+    pointer-events: none;
+    border-radius: inherit;
   }
 }
 
-/* Wallet adapter overrides */
+/* Wallet adapter overrides - warm theme */
 .wallet-adapter-button {
-  background: linear-gradient(135deg, #14b8a6 0%, #f97316 100%) !important;
+  background: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%) !important;
+  color: white !important;
   font-weight: 500 !important;
+  border-radius: 9999px !important;
 }
 
 .wallet-adapter-button:hover {
-  background: linear-gradient(135deg, #0d9488 0%, #ea580c 100%) !important;
+  background: linear-gradient(135deg, #C44A28 0%, #D07F3E 50%, #B36D08 100%) !important;
 }
 
 .wallet-adapter-modal-wrapper {
-  @apply bg-surface-900 !important;
+  background: #FAF5EC !important;
 }
 
 .wallet-adapter-modal-title {
-  @apply text-white !important;
+  color: #1E1A16 !important;
 }
 
 .wallet-adapter-modal-list li {
-  @apply bg-surface-800/50 hover:bg-surface-700/50 !important;
+  background: #F6F1E8 !important;
+  border: 1px solid rgba(201, 189, 170, 0.3) !important;
+}
+
+.wallet-adapter-modal-list li:hover {
+  background: #EDE6D9 !important;
+}
+
+.wallet-adapter-modal-button-close {
+  background: #EDE6D9 !important;
 }

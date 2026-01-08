@@ -149,38 +149,37 @@ export default function HomePage() {
     <div className="relative">
       {/* Hero Section */}
       <section className="min-h-[80vh] flex flex-col items-center justify-center px-4 relative">
+        {/* Subtle ember glow in background */}
+        <div 
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-[0.08] blur-3xl pointer-events-none"
+          style={{ background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%)' }}
+        />
+
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-2xl"
+          className="text-center max-w-2xl relative z-10"
         >
-          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-white mb-6">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-display font-semibold tracking-tight text-charcoal-800 mb-6">
             Token locks that
             <br />
-            <span className="text-flow-gradient">
+            <span className="text-ember">
               build trust
             </span>
           </h1>
           
-          <p className="text-lg text-surface-400 mb-10 max-w-lg mx-auto leading-relaxed">
+          <p className="text-lg text-charcoal-500 mb-10 max-w-lg mx-auto leading-relaxed">
             Secure vesting schedules with on-chain proofs. 
             Earn yield while locked.
           </p>
           
           <div className="flex items-center justify-center gap-4">
-            <Link
-              href="/create"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium text-sm transition-all hover:shadow-glow-flow"
-              style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 100%)' }}
-            >
+            <Link href="/create" className="btn-ember">
               Create Lock
               <ArrowRight className="h-4 w-4" />
             </Link>
-            <Link
-              href="/explore"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-surface-700 text-surface-300 font-medium text-sm hover:border-orange-500/50 hover:text-white transition-colors"
-            >
+            <Link href="/explore" className="btn-ghost">
               Explore
             </Link>
           </div>
@@ -191,7 +190,7 @@ export default function HomePage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}
-          className="absolute bottom-12 flex flex-col items-center gap-2 text-surface-500"
+          className="absolute bottom-12 flex flex-col items-center gap-2 text-charcoal-400"
         >
           <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
           <motion.div
@@ -210,14 +209,14 @@ export default function HomePage() {
             {/* Timeline Rail */}
             <div className="relative">
               {/* Rail background */}
-              <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-surface-800" />
+              <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-cream-500" />
               
-              {/* Rail progress fill - teal to orange to coral */}
+              {/* Rail progress fill - ember gradient */}
               <div
                 className="absolute left-[19px] top-0 w-[2px] transition-all duration-300"
                 style={{ 
                   height: `${scrollProgress * 100}%`,
-                  background: 'linear-gradient(180deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)'
+                  background: 'linear-gradient(180deg, #D5522E 0%, #E08B46 50%, #C47809 100%)'
                 }}
               />
 
@@ -237,12 +236,12 @@ export default function HomePage() {
                       <div
                         className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
                           isActive
-                            ? 'text-white shadow-lg shadow-orange-500/20'
+                            ? 'text-white shadow-ember-glow'
                             : isPast
-                            ? 'bg-teal-500/20 text-teal-400 border border-teal-500/30'
-                            : 'bg-surface-800 text-surface-500 border border-surface-700'
+                            ? 'bg-ember-orange/10 text-ember-orange border border-ember-orange/30'
+                            : 'bg-cream-200 text-charcoal-400 border border-cream-500'
                         }`}
-                        style={isActive ? { background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 100%)' } : {}}
+                        style={isActive ? { background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%)' } : {}}
                       >
                         {isPast ? <Check className="h-4 w-4" /> : milestone.step}
                       </div>
@@ -250,17 +249,17 @@ export default function HomePage() {
                       {/* Content */}
                       <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-50'}`}>
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className={`text-lg font-medium ${isActive ? 'text-white' : 'text-surface-300'}`}>
+                          <h3 className={`text-lg font-medium ${isActive ? 'text-charcoal-800' : 'text-charcoal-600'}`}>
                             {milestone.title}
                           </h3>
                           {milestone.yieldBoost && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-orange-500/10 border border-orange-500/20 text-orange-400 text-xs">
+                            <span className="tag-ember">
                               <Zap className="h-3 w-3" />
                               Yield Boost
                             </span>
                           )}
                         </div>
-                        <p className="text-sm text-surface-500 max-w-sm">
+                        <p className="text-sm text-charcoal-500 max-w-sm">
                           {milestone.description}
                         </p>
                       </div>
@@ -280,16 +279,16 @@ export default function HomePage() {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     transition={{ duration: 0.3 }}
-                    className="bg-surface-900/50 backdrop-blur-sm border border-surface-800 rounded-2xl p-6"
+                    className="card p-6"
                   >
                     <div className="flex items-center justify-between mb-6">
-                      <span className="text-xs uppercase tracking-widest text-surface-500">
+                      <span className="text-xs uppercase tracking-widest text-charcoal-400">
                         Proof Preview
                       </span>
                       <span className={`text-xs px-2 py-1 rounded-full ${
                         milestones[activeIndex].preview.claimed
-                          ? 'bg-teal-500/10 text-teal-400 border border-teal-500/20'
-                          : 'bg-surface-800 text-surface-400'
+                          ? 'bg-accent-teal/10 text-accent-teal border border-accent-teal/20'
+                          : 'bg-cream-400/50 text-charcoal-500'
                       }`}>
                         {milestones[activeIndex].preview.status}
                       </span>
@@ -298,16 +297,16 @@ export default function HomePage() {
                     {/* Token display */}
                     <div className="flex items-center gap-4 mb-6">
                       <div 
-                        className="w-12 h-12 rounded-xl border border-surface-700 flex items-center justify-center"
-                        style={{ background: 'linear-gradient(135deg, rgba(20, 184, 166, 0.2) 0%, rgba(249, 115, 22, 0.2) 100%)' }}
+                        className="w-12 h-12 rounded-xl border border-cream-500/30 flex items-center justify-center"
+                        style={{ background: 'linear-gradient(135deg, rgba(213, 82, 46, 0.1) 0%, rgba(196, 120, 9, 0.1) 100%)' }}
                       >
-                        <Lock className="h-5 w-5 text-teal-400" />
+                        <Lock className="h-5 w-5 text-ember-orange" />
                       </div>
                       <div>
-                        <div className="text-xl font-semibold text-white">
+                        <div className="text-xl font-semibold text-charcoal-800">
                           {milestones[activeIndex].preview.tokens}
                         </div>
-                        <div className="text-sm text-surface-500">
+                        <div className="text-sm text-charcoal-500">
                           {milestones[activeIndex].preview.state}
                         </div>
                       </div>
@@ -316,15 +315,15 @@ export default function HomePage() {
                     {/* Progress bar */}
                     <div className="mb-4">
                       <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-surface-500">Progress</span>
-                        <span className="text-surface-400">
+                        <span className="text-charcoal-500">Progress</span>
+                        <span className="text-charcoal-600">
                           {milestones[activeIndex].preview.progress}%
                         </span>
                       </div>
-                      <div className="h-1.5 bg-surface-800 rounded-full overflow-hidden">
+                      <div className="h-1.5 bg-cream-400 rounded-full overflow-hidden">
                         <motion.div
                           className="h-full rounded-full"
-                          style={{ background: 'linear-gradient(90deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
+                          style={{ background: 'linear-gradient(90deg, #D5522E 0%, #E08B46 50%, #C47809 100%)' }}
                           initial={{ width: 0 }}
                           animate={{ width: `${milestones[activeIndex].preview.progress}%` }}
                           transition={{ duration: 0.5 }}
@@ -334,10 +333,10 @@ export default function HomePage() {
 
                     {/* Unlocked amount */}
                     {milestones[activeIndex].preview.unlocked && (
-                      <div className="pt-4 border-t border-surface-800">
+                      <div className="pt-4 border-t border-cream-500/30">
                         <div className="flex items-center justify-between">
-                          <span className="text-sm text-surface-500">Unlocked</span>
-                          <span className="text-sm font-medium text-teal-400">
+                          <span className="text-sm text-charcoal-500">Unlocked</span>
+                          <span className="text-sm font-medium text-ember-orange">
                             {milestones[activeIndex].preview.unlocked} PEPE
                           </span>
                         </div>
@@ -346,8 +345,8 @@ export default function HomePage() {
 
                     {/* Yield boost indicator */}
                     {milestones[activeIndex].yieldBoost && (
-                      <div className="mt-4 p-3 rounded-xl bg-orange-500/5 border border-orange-500/10">
-                        <div className="flex items-center gap-2 text-orange-400 text-sm">
+                      <div className="mt-4 p-3 rounded-xl bg-ember-red/5 border border-ember-red/10">
+                        <div className="flex items-center gap-2 text-ember-red text-sm">
                           <Zap className="h-4 w-4" />
                           <span>Yield accruing: ~0.023 SOL</span>
                         </div>
@@ -357,7 +356,7 @@ export default function HomePage() {
                 </AnimatePresence>
 
                 {/* Verification badge */}
-                <div className="mt-4 flex items-center gap-2 text-surface-500 text-xs">
+                <div className="mt-4 flex items-center gap-2 text-charcoal-400 text-xs">
                   <Shield className="h-3.5 w-3.5" />
                   <span>Verified on Solana blockchain</span>
                 </div>
@@ -367,8 +366,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Stats bar */}
-      <section className="py-16 border-y border-surface-800/50">
+      {/* Stats bar with ember divider */}
+      <section className="py-16">
+        <div className="divider-ember mb-16" />
         <div className="max-w-4xl mx-auto px-4">
           <div className="grid grid-cols-3 gap-8 text-center">
             {[
@@ -377,26 +377,27 @@ export default function HomePage() {
               { value: '99.9%', label: 'Uptime' },
             ].map((stat) => (
               <div key={stat.label}>
-                <div className="text-2xl sm:text-3xl font-display font-semibold text-white mb-1">
+                <div className="text-2xl sm:text-3xl font-display font-semibold text-charcoal-800 mb-1">
                   {stat.value}
                 </div>
-                <div className="text-xs text-surface-500 uppercase tracking-wider">
+                <div className="text-xs text-charcoal-500 uppercase tracking-wider">
                   {stat.label}
                 </div>
               </div>
             ))}
           </div>
         </div>
+        <div className="divider-ember mt-16" />
       </section>
 
       {/* FAQ Section */}
       <section className="py-24">
         <div className="max-w-2xl mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-2xl font-display font-semibold text-white mb-4">
+            <h2 className="text-2xl font-display font-semibold text-charcoal-800 mb-4">
               Frequently Asked
             </h2>
-            <p className="text-surface-500">
+            <p className="text-charcoal-500">
               Everything you need to know about token locks
             </p>
           </div>
@@ -405,19 +406,19 @@ export default function HomePage() {
             {faqs.map((faq, index) => (
               <div
                 key={index}
-                className="border border-surface-800 rounded-xl overflow-hidden"
+                className="bg-cream-100 border border-cream-500/20 rounded-xl overflow-hidden"
               >
                 <button
                   onClick={() => setOpenFaq(openFaq === index ? null : index)}
-                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-surface-900/50 transition-colors"
+                  className="w-full px-6 py-4 flex items-center justify-between text-left hover:bg-cream-200/50 transition-colors"
                 >
-                  <span className="text-sm font-medium text-surface-200">
+                  <span className="text-sm font-medium text-charcoal-700">
                     {faq.q}
                   </span>
                   {openFaq === index ? (
-                    <Minus className="h-4 w-4 text-surface-500 shrink-0" />
+                    <Minus className="h-4 w-4 text-charcoal-400 shrink-0" />
                   ) : (
-                    <Plus className="h-4 w-4 text-surface-500 shrink-0" />
+                    <Plus className="h-4 w-4 text-charcoal-400 shrink-0" />
                   )}
                 </button>
                 <AnimatePresence>
@@ -428,7 +429,7 @@ export default function HomePage() {
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <div className="px-6 pb-4 text-sm text-surface-400 leading-relaxed">
+                      <div className="px-6 pb-4 text-sm text-charcoal-500 leading-relaxed">
                         {faq.a}
                       </div>
                     </motion.div>
@@ -441,27 +442,23 @@ export default function HomePage() {
       </section>
 
       {/* Transparency section */}
-      <section className="py-24 border-t border-surface-800/50">
+      <section className="py-24">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-800/50 text-surface-400 text-xs mb-8">
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cream-400/50 text-charcoal-500 text-xs mb-8 border border-cream-500/30">
             <Shield className="h-3.5 w-3.5" />
             <span>Built for transparency</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-display font-semibold text-white mb-4">
+          <h2 className="text-2xl sm:text-3xl font-display font-semibold text-charcoal-800 mb-4">
             Every lock is publicly verifiable
           </h2>
           
-          <p className="text-surface-400 max-w-lg mx-auto mb-10">
+          <p className="text-charcoal-500 max-w-lg mx-auto mb-10">
             All contracts are on-chain with shareable proof pages. 
             No hidden terms, no trust required.
           </p>
 
-          <Link
-            href="/create"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium text-sm hover:opacity-90 transition-opacity"
-            style={{ background: 'linear-gradient(135deg, #14b8a6 0%, #f97316 50%, #ef4444 100%)' }}
-          >
+          <Link href="/create" className="btn-ember">
             Create Your First Lock
             <ArrowRight className="h-4 w-4" />
           </Link>
