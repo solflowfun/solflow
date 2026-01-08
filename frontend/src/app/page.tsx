@@ -149,9 +149,9 @@ export default function HomePage() {
     <div className="relative">
       {/* Hero Section */}
       <section className="min-h-[80vh] flex flex-col items-center justify-center px-4 relative">
-        {/* Subtle ember glow in background */}
+        {/* Very subtle ember glow in background */}
         <div 
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-[0.08] blur-3xl pointer-events-none"
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full opacity-[0.04] blur-[100px] pointer-events-none"
           style={{ background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%)' }}
         />
 
