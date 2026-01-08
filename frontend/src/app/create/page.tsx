@@ -19,9 +19,12 @@ interface FormData {
   recipient: string;
   // Lock specific
   unlockDate: string;
+  unlockTime: string;
   // Vesting specific
   startDate: string;
+  startTime: string;
   endDate: string;
+  endTime: string;
   interval: string;
   cliffPercent: string;
   // Permissions
@@ -52,6 +55,16 @@ const intervals = [
   { value: '31536000', label: 'Yearly' },
 ];
 
+// Quick duration presets
+const durationPresets = [
+  { label: '1 Week', days: 7 },
+  { label: '1 Month', days: 30 },
+  { label: '3 Months', days: 90 },
+  { label: '6 Months', days: 180 },
+  { label: '1 Year', days: 365 },
+  { label: '2 Years', days: 730 },
+];
+
 export default function CreatePage() {
   const { connected, publicKey } = useWallet();
   const [step, setStep] = useState(1);
@@ -62,8 +75,11 @@ export default function CreatePage() {
     amount: '',
     recipient: '',
     unlockDate: '',
+    unlockTime: '12:00',
     startDate: '',
+    startTime: '12:00',
     endDate: '',
+    endTime: '12:00',
     interval: '2592000',
     cliffPercent: '0',
     cancelableBy: 'sender',
@@ -87,8 +103,30 @@ export default function CreatePage() {
     setStep(2);
   };
 
+  const setPresetDuration = (days: number) => {
+    const date = new Date();
+    date.setDate(date.getDate() + days);
+    const dateStr = date.toISOString().split('T')[0];
+    updateForm({ unlockDate: dateStr });
+  };
+
   const nextStep = () => setStep((s) => Math.min(s + 1, 6));
   const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+
+  // Helper to format datetime for display
+  const formatDateTime = (date: string, time: string) => {
+    if (!date) return 'Not set';
+    const d = new Date(`${date}T${time || '12:00'}`);
+    return d.toLocaleString('en-US', { 
+      weekday: 'short',
+      month: 'short', 
+      day: 'numeric', 
+      year: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    });
+  };
 
   if (!connected) {
     return (
@@ -206,7 +244,7 @@ export default function CreatePage() {
                       type="text"
                       value={formData.amount}
                       onChange={(e) => updateForm({ amount: e.target.value })}
-                      placeholder="0.00"
+                      placeholder="Enter amount"
                       className="input-field w-full text-lg"
                     />
                   </div>
@@ -216,7 +254,7 @@ export default function CreatePage() {
                       type="text"
                       value={formData.recipient}
                       onChange={(e) => updateForm({ recipient: e.target.value })}
-                      placeholder={publicKey?.toBase58() || 'Recipient wallet address'}
+                      placeholder="Enter recipient wallet address"
                       className="input-field w-full font-mono text-sm"
                     />
                     <p className="text-xs text-charcoal-400 mt-2">
@@ -248,25 +286,73 @@ export default function CreatePage() {
                 exit={{ opacity: 0, x: -20 }}
               >
                 <h2 className="text-xl font-semibold text-charcoal-800 mb-6">
-                  {formData.type === 'lock' ? 'Unlock Date' : 'Vesting Schedule'}
+                  {formData.type === 'lock' ? 'Unlock Schedule' : 'Vesting Schedule'}
                 </h2>
                 
                 {formData.type === 'lock' ? (
-                  <div>
-                    <label className="block text-sm font-medium text-charcoal-700 mb-2">Unlock Date & Time</label>
-                    <input
-                      type="datetime-local"
-                      value={formData.unlockDate}
-                      onChange={(e) => updateForm({ unlockDate: e.target.value })}
-                      className="input-field w-full"
-                    />
-                    <div className="mt-4 p-4 rounded-xl bg-amber-50 border border-amber-200">
+                  <div className="space-y-6">
+                    {/* Quick Duration Presets */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal-700 mb-3">Quick Select</label>
+                      <div className="flex flex-wrap gap-2">
+                        {durationPresets.map((preset) => (
+                          <button
+                            key={preset.label}
+                            onClick={() => setPresetDuration(preset.days)}
+                            className="px-4 py-2 rounded-full text-sm border border-cream-400 hover:border-ember-orange/50 hover:bg-ember-orange/5 text-charcoal-600 transition-all"
+                          >
+                            {preset.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Date Picker */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                        <Calendar className="h-4 w-4 inline mr-2" />
+                        Unlock Date
+                      </label>
+                      <input
+                        type="date"
+                        value={formData.unlockDate}
+                        onChange={(e) => updateForm({ unlockDate: e.target.value })}
+                        min={new Date().toISOString().split('T')[0]}
+                        className="input-field w-full"
+                      />
+                    </div>
+
+                    {/* Time Picker */}
+                    <div>
+                      <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                        <Clock className="h-4 w-4 inline mr-2" />
+                        Unlock Time
+                      </label>
+                      <input
+                        type="time"
+                        value={formData.unlockTime}
+                        onChange={(e) => updateForm({ unlockTime: e.target.value })}
+                        className="input-field w-full"
+                      />
+                    </div>
+
+                    {/* Preview */}
+                    {formData.unlockDate && (
+                      <div className="p-4 rounded-xl bg-cream-100 border border-cream-300">
+                        <div className="text-sm text-charcoal-500 mb-1">Tokens will unlock on:</div>
+                        <div className="text-lg font-medium text-charcoal-800">
+                          {formatDateTime(formData.unlockDate, formData.unlockTime)}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="p-4 rounded-xl bg-amber-50 border border-amber-200">
                       <div className="flex items-start gap-3">
                         <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
                         <div>
                           <p className="text-sm font-medium text-amber-700">Irreversible Action</p>
                           <p className="text-sm text-charcoal-500 mt-1">
-                            Token locks cannot be modified after creation. Tokens will be locked until the unlock date.
+                            Token locks cannot be modified after creation.
                           </p>
                         </div>
                       </div>
@@ -274,26 +360,64 @@ export default function CreatePage() {
                   </div>
                 ) : (
                   <div className="space-y-6">
+                    {/* Start Date/Time */}
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm font-medium text-charcoal-700 mb-2">Start Date</label>
+                        <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                          <Calendar className="h-4 w-4 inline mr-2" />
+                          Start Date
+                        </label>
                         <input
-                          type="datetime-local"
+                          type="date"
                           value={formData.startDate}
                           onChange={(e) => updateForm({ startDate: e.target.value })}
+                          min={new Date().toISOString().split('T')[0]}
                           className="input-field w-full"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-charcoal-700 mb-2">End Date</label>
+                        <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                          <Clock className="h-4 w-4 inline mr-2" />
+                          Start Time
+                        </label>
                         <input
-                          type="datetime-local"
-                          value={formData.endDate}
-                          onChange={(e) => updateForm({ endDate: e.target.value })}
+                          type="time"
+                          value={formData.startTime}
+                          onChange={(e) => updateForm({ startTime: e.target.value })}
                           className="input-field w-full"
                         />
                       </div>
                     </div>
+
+                    {/* End Date/Time */}
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                          <Calendar className="h-4 w-4 inline mr-2" />
+                          End Date
+                        </label>
+                        <input
+                          type="date"
+                          value={formData.endDate}
+                          onChange={(e) => updateForm({ endDate: e.target.value })}
+                          min={formData.startDate || new Date().toISOString().split('T')[0]}
+                          className="input-field w-full"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-charcoal-700 mb-2">
+                          <Clock className="h-4 w-4 inline mr-2" />
+                          End Time
+                        </label>
+                        <input
+                          type="time"
+                          value={formData.endTime}
+                          onChange={(e) => updateForm({ endTime: e.target.value })}
+                          className="input-field w-full"
+                        />
+                      </div>
+                    </div>
+
                     <div>
                       <label className="block text-sm font-medium text-charcoal-700 mb-2">Unlock Interval</label>
                       <select
@@ -308,6 +432,7 @@ export default function CreatePage() {
                         ))}
                       </select>
                     </div>
+                    
                     <div>
                       <label className="block text-sm font-medium text-charcoal-700 mb-2">Cliff Amount (%)</label>
                       <input
@@ -507,15 +632,21 @@ export default function CreatePage() {
                     <div className="card p-4">
                       <div className="flex items-center justify-between">
                         <span className="text-charcoal-400">Unlock Date</span>
-                        <span className="text-charcoal-700">{new Date(formData.unlockDate).toLocaleString()}</span>
+                        <span className="text-charcoal-700">{formatDateTime(formData.unlockDate, formData.unlockTime)}</span>
                       </div>
                     </div>
                   ) : (
                     <>
                       <div className="card p-4">
                         <div className="flex items-center justify-between">
-                          <span className="text-charcoal-400">Vesting Period</span>
-                          <span className="text-charcoal-700">{new Date(formData.startDate).toLocaleDateString()} - {new Date(formData.endDate).toLocaleDateString()}</span>
+                          <span className="text-charcoal-400">Start</span>
+                          <span className="text-charcoal-700">{formatDateTime(formData.startDate, formData.startTime)}</span>
+                        </div>
+                      </div>
+                      <div className="card p-4">
+                        <div className="flex items-center justify-between">
+                          <span className="text-charcoal-400">End</span>
+                          <span className="text-charcoal-700">{formatDateTime(formData.endDate, formData.endTime)}</span>
                         </div>
                       </div>
                       <div className="card p-4">
