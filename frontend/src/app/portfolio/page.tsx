@@ -1,229 +1,194 @@
 'use client';
 
-import { FC } from 'react';
-import Link from 'next/link';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { motion } from 'framer-motion';
-import { 
-  Lock, Wallet, Clock, ArrowUpRight, 
-  Plus, Filter, Search 
-} from 'lucide-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
+import Link from 'next/link';
 
-// Mock data
-const mockContracts = [
-  {
-    address: '4xYz...aBcD',
-    kind: 'lock',
-    state: 'active',
-    tokenSymbol: 'PEPE',
-    totalAmount: '1,000,000',
-    unlockDate: '2025-01-01',
-    progress: 45,
-    role: 'sender',
-    yieldBoost: true,
-  },
-  {
-    address: '7kLm...nOpQ',
-    kind: 'vesting',
-    state: 'active',
-    tokenSymbol: 'BONK',
-    totalAmount: '50,000,000',
-    unlockDate: '2024-12-31',
-    progress: 75,
-    role: 'recipient',
-    yieldBoost: false,
-  },
-  {
-    address: '9rSt...uVwX',
-    kind: 'lock',
-    state: 'completed',
-    tokenSymbol: 'WIF',
-    totalAmount: '10,000',
-    unlockDate: '2024-01-15',
-    progress: 100,
-    role: 'recipient',
-    yieldBoost: true,
-  },
-];
+// Mock portfolio data
+const mockPortfolio = {
+  totalLocked: '2,500,000 tokens',
+  totalValueLocked: '$12,450',
+  activeLocks: 3,
+  yieldEarned: '4.21 SOL',
+  locks: [
+    {
+      id: '7xKp3mNq',
+      token: '$FLOW',
+      tokenIcon: '🌊',
+      amount: '1,000,000',
+      type: 'vesting',
+      role: 'creator',
+      status: 'active',
+      unlockDate: 'Dec 15, 2026',
+      progress: 25,
+      yieldBoost: true,
+      yieldAccrued: '2.34 SOL',
+      nextUnlock: '250,000 on Mar 15, 2026',
+    },
+    {
+      id: '9aRt7kLm',
+      token: '$MOON',
+      tokenIcon: '🌙',
+      amount: '500,000',
+      type: 'lock',
+      role: 'recipient',
+      status: 'active',
+      unlockDate: 'Jun 1, 2026',
+      progress: 45,
+      yieldBoost: false,
+      yieldAccrued: null,
+      nextUnlock: 'Full unlock Jun 1, 2026',
+    },
+    {
+      id: '4bCx2pQw',
+      token: '$PEPE',
+      tokenIcon: '🐸',
+      amount: '1,000,000',
+      type: 'vesting',
+      role: 'creator',
+      status: 'active',
+      unlockDate: 'Mar 30, 2027',
+      progress: 10,
+      yieldBoost: true,
+      yieldAccrued: '1.87 SOL',
+      nextUnlock: '100,000 on Apr 30, 2026',
+    },
+  ],
+};
 
 export default function PortfolioPage() {
   const { connected, publicKey } = useWallet();
 
   if (!connected) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <Wallet className="h-16 w-16 text-brand-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-display font-bold mb-4">Connect Your Wallet</h1>
-          <p className="text-surface-400">Connect a Solana wallet to view your portfolio</p>
+      <main className="min-h-[80vh] flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <h1 className="font-editorial text-3xl text-[#1A1A1A] mb-4">Your Portfolio</h1>
+          <p className="text-[#4A4A4A] mb-8">
+            Connect your wallet to view your token locks, vesting schedules, and accrued yield.
+          </p>
+          <WalletMultiButton />
         </div>
-      </div>
+      </main>
     );
   }
 
-  const createdContracts = mockContracts.filter(c => c.role === 'sender');
-  const receivedContracts = mockContracts.filter(c => c.role === 'recipient');
-
   return (
-    <div className="py-12">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-display font-bold mb-2">Portfolio</h1>
-            <p className="text-surface-400">
-              Manage your locks and vesting contracts
-            </p>
-          </div>
-          <Link
-            href="/create"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            Create Lock
+    <main className="max-w-6xl mx-auto px-6 py-16">
+      {/* Header */}
+      <div className="mb-12">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-3">Portfolio</div>
+        <h1 className="font-editorial text-4xl text-[#1A1A1A] mb-2">Your Locks</h1>
+        <p className="text-sm text-[#8A8A8A] font-mono">{publicKey?.toBase58()}</p>
+      </div>
+
+      {/* Stats Grid */}
+      <div className="grid md:grid-cols-4 gap-4 mb-12">
+        <div className="editorial-card p-6">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Total Locked</div>
+          <div className="font-editorial text-2xl text-[#1A1A1A]">{mockPortfolio.totalLocked}</div>
+        </div>
+        <div className="editorial-card p-6">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Est. Value</div>
+          <div className="font-editorial text-2xl text-[#1A1A1A]">{mockPortfolio.totalValueLocked}</div>
+        </div>
+        <div className="editorial-card p-6">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Active Locks</div>
+          <div className="font-editorial text-2xl text-[#1A1A1A]">{mockPortfolio.activeLocks}</div>
+        </div>
+        <div className="editorial-card p-6">
+          <div className="text-[10px] uppercase tracking-[0.15em] text-[#8A8A8A] mb-2">Yield Earned</div>
+          <div className="font-editorial text-2xl text-[#50908D]">+{mockPortfolio.yieldEarned}</div>
+        </div>
+      </div>
+
+      {/* Locks List */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="font-editorial text-2xl text-[#1A1A1A]">Active Positions</h2>
+          <Link href="/create" className="btn-primary text-sm">
+            New Lock
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
           </Link>
         </div>
 
-        {/* Stats */}
-        <div className="grid sm:grid-cols-3 gap-6 mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="stat-card"
-          >
-            <div className="stat-value gradient-text">3</div>
-            <div className="stat-label">Total Contracts</div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="stat-card"
-          >
-            <div className="stat-value text-accent-400">2</div>
-            <div className="stat-label">Active</div>
-          </motion.div>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="stat-card"
-          >
-            <div className="stat-value text-warning-400">2</div>
-            <div className="stat-label">With Yield Boost</div>
-          </motion.div>
-        </div>
-
-        {/* Tabs */}
-        <div className="flex gap-4 border-b border-surface-800 mb-8">
-          <button className="px-4 py-3 border-b-2 border-brand-500 text-white font-medium">
-            Created ({createdContracts.length})
-          </button>
-          <button className="px-4 py-3 border-b-2 border-transparent text-surface-400 hover:text-white font-medium">
-            Received ({receivedContracts.length})
-          </button>
-        </div>
-
-        {/* Search & Filter */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-6">
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-surface-500" />
-            <input
-              type="text"
-              placeholder="Search by token or address..."
-              className="input-glow w-full pl-12"
-            />
-          </div>
-          <button className="inline-flex items-center gap-2 px-4 py-3 bg-surface-800 hover:bg-surface-700 rounded-xl transition-colors">
-            <Filter className="h-4 w-4" />
-            Filter
-          </button>
-        </div>
-
-        {/* Contracts List */}
-        <div className="space-y-4">
-          {mockContracts.map((contract, index) => (
-            <motion.div
-              key={contract.address}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Link
-                href={`/locks/${contract.address}`}
-                className="glass-card-hover p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 block"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-brand-500 to-accent-500 flex items-center justify-center text-lg font-bold">
-                    {contract.tokenSymbol.charAt(0)}
+        {mockPortfolio.locks.map((lock) => (
+          <div key={lock.id} className="editorial-card p-6">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-6">
+              {/* Token info */}
+              <div className="flex items-center gap-4 lg:w-48">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#8CCBBF]/20 to-[#817CCD]/20 flex items-center justify-center text-2xl">
+                  {lock.tokenIcon}
+                </div>
+                <div>
+                  <div className="font-medium text-[#1A1A1A]">{lock.token}</div>
+                  <div className="text-xs text-[#8A8A8A]">
+                    <span className="capitalize">{lock.type}</span>
+                    <span className="mx-1">•</span>
+                    <span className="capitalize">{lock.role}</span>
                   </div>
+                </div>
+              </div>
+
+              {/* Amount & Progress */}
+              <div className="flex-1">
+                <div className="flex justify-between text-sm mb-2">
+                  <span className="font-mono">{lock.amount}</span>
+                  <span className="text-[#8A8A8A]">{lock.progress}% unlocked</span>
+                </div>
+                <div className="relative h-2 bg-[#E5E0D8] rounded-full overflow-hidden">
+                  <div 
+                    className="absolute inset-y-0 left-0 bg-gradient-to-r from-[#50908D] to-[#817CCD] rounded-full transition-all"
+                    style={{ width: `${lock.progress}%` }}
+                  />
+                </div>
+                <div className="text-xs text-[#8A8A8A] mt-2">{lock.nextUnlock}</div>
+              </div>
+
+              {/* Yield info */}
+              <div className="lg:w-32 text-right">
+                {lock.yieldBoost && lock.yieldAccrued ? (
                   <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{contract.totalAmount} {contract.tokenSymbol}</span>
-                      <span className={`tag ${contract.kind === 'lock' ? 'tag-brand' : 'tag-accent'}`}>
-                        {contract.kind}
-                      </span>
-                      {contract.yieldBoost && (
-                        <span className="tag tag-warning">Yield Boost</span>
-                      )}
-                    </div>
-                    <div className="text-sm text-surface-400 mt-1">
-                      <span className="font-mono">{contract.address}</span>
-                      <span className="mx-2">•</span>
-                      <span className="capitalize">{contract.role}</span>
-                    </div>
+                    <div className="text-[10px] uppercase tracking-[0.1em] text-[#C47809] mb-1">Yield Boost</div>
+                    <div className="font-mono text-[#50908D]">+{lock.yieldAccrued}</div>
                   </div>
-                </div>
-                
-                <div className="flex items-center gap-6">
-                  <div className="text-right">
-                    <div className="text-sm text-surface-400">Unlock Date</div>
-                    <div className="font-medium">{contract.unlockDate}</div>
-                  </div>
-                  <div className="w-32">
-                    <div className="flex items-center justify-between text-sm mb-1">
-                      <span className="text-surface-400">Progress</span>
-                      <span>{contract.progress}%</span>
-                    </div>
-                    <div className="progress-glow">
-                      <div 
-                        className="progress-glow-fill" 
-                        style={{ width: `${contract.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                  <span className={`tag ${
-                    contract.state === 'completed' ? 'tag-success' : 
-                    contract.state === 'active' ? 'tag-brand' : 'tag-warning'
-                  }`}>
-                    {contract.state}
-                  </span>
-                  <ArrowUpRight className="h-5 w-5 text-surface-500" />
-                </div>
-              </Link>
-            </motion.div>
-          ))}
-        </div>
+                ) : (
+                  <div className="text-xs text-[#8A8A8A]">No yield boost</div>
+                )}
+              </div>
 
-        {/* Empty State */}
-        {mockContracts.length === 0 && (
-          <div className="text-center py-16">
-            <Lock className="h-16 w-16 text-surface-600 mx-auto mb-6" />
-            <h3 className="text-xl font-semibold mb-2">No contracts found</h3>
-            <p className="text-surface-400 mb-6">
-              You haven't created or received any locks yet.
-            </p>
-            <Link
-              href="/create"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium"
-            >
-              <Plus className="h-4 w-4" />
-              Create Your First Lock
-            </Link>
+              {/* Actions */}
+              <div className="flex gap-2 lg:w-auto">
+                <Link 
+                  href={`/locks/${lock.id}`}
+                  className="btn-secondary text-xs px-4 py-2"
+                >
+                  View
+                </Link>
+                {lock.yieldBoost && lock.yieldAccrued && (
+                  <button className="btn-primary text-xs px-4 py-2">
+                    Claim
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
-        )}
+        ))}
       </div>
-    </div>
+
+      {/* Empty state (if no locks) */}
+      {mockPortfolio.locks.length === 0 && (
+        <div className="editorial-card p-12 text-center">
+          <div className="text-4xl mb-4">🔐</div>
+          <p className="text-[#4A4A4A] mb-2">No locks yet</p>
+          <p className="text-sm text-[#8A8A8A] mb-6">Create your first token lock to get started.</p>
+          <Link href="/create" className="btn-primary">
+            Create Lock
+          </Link>
+        </div>
+      )}
+    </main>
   );
 }
-

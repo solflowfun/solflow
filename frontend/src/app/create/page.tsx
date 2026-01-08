@@ -1,562 +1,445 @@
 'use client';
 
-import { FC, useState } from 'react';
+import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Lock, Clock, ChevronRight, ChevronLeft, 
-  Coins, Users, Calendar, Settings, Zap, Check, AlertTriangle
-} from 'lucide-react';
+import { WalletMultiButton } from '@solana/wallet-adapter-react-ui';
 
 type LockType = 'lock' | 'vesting';
-type LockTemplate = 'team' | 'marketing' | 'advisor' | 'lp' | 'custom';
+type VestingSchedule = 'linear' | 'cliff' | 'custom';
 
 interface FormData {
-  type: LockType;
-  template: LockTemplate;
+  lockType: LockType;
   tokenMint: string;
   amount: string;
   recipient: string;
-  // Lock specific
   unlockDate: string;
-  // Vesting specific
-  startDate: string;
-  endDate: string;
-  interval: string;
-  cliffPercent: string;
-  // Permissions
-  cancelableBy: 'neither' | 'sender' | 'recipient' | 'both';
-  transferableBy: 'neither' | 'sender' | 'recipient' | 'both';
-  // Yield boost
+  vestingSchedule: VestingSchedule;
+  cliffDuration: string;
+  vestingDuration: string;
   enableYieldBoost: boolean;
-  buyTxSignatures: string[];
-  // Metadata
-  title: string;
-  memo: string;
+  buyPrice: string;
+  cancelAuthority: 'creator' | 'recipient' | 'both' | 'none';
+  transferable: boolean;
 }
 
-const templates = [
-  { id: 'team', label: 'Team Lock', description: 'Single unlock for team tokens', icon: Users, type: 'lock' as const },
-  { id: 'marketing', label: 'Marketing Vesting', description: 'Monthly unlock for marketing', icon: Coins, type: 'vesting' as const },
-  { id: 'advisor', label: 'Advisor Vesting', description: 'Quarterly unlock with cliff', icon: Users, type: 'vesting' as const },
-  { id: 'lp', label: 'LP Lock', description: 'Liquidity pool token lock', icon: Lock, type: 'lock' as const },
-  { id: 'custom', label: 'Custom', description: 'Fully customizable', icon: Settings, type: 'lock' as const },
-];
-
-const intervals = [
-  { value: '60', label: 'Every Minute (Testing)' },
-  { value: '86400', label: 'Daily' },
-  { value: '604800', label: 'Weekly' },
-  { value: '2592000', label: 'Monthly (30 days)' },
-  { value: '7776000', label: 'Quarterly (90 days)' },
-  { value: '31536000', label: 'Yearly' },
-];
-
 export default function CreatePage() {
-  const { connected, publicKey } = useWallet();
+  const { connected } = useWallet();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({
-    type: 'lock',
-    template: 'team',
+    lockType: 'lock',
     tokenMint: '',
     amount: '',
     recipient: '',
     unlockDate: '',
-    startDate: '',
-    endDate: '',
-    interval: '2592000',
-    cliffPercent: '0',
-    cancelableBy: 'sender',
-    transferableBy: 'neither',
+    vestingSchedule: 'linear',
+    cliffDuration: '90',
+    vestingDuration: '365',
     enableYieldBoost: false,
-    buyTxSignatures: [],
-    title: '',
-    memo: '',
+    buyPrice: '',
+    cancelAuthority: 'none',
+    transferable: false,
   });
 
-  const updateForm = (updates: Partial<FormData>) => {
-    setFormData((prev) => ({ ...prev, ...updates }));
+  const updateFormData = (field: keyof FormData, value: string | boolean) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
-  const selectTemplate = (template: LockTemplate) => {
-    const templateConfig = templates.find(t => t.id === template);
-    updateForm({ 
-      template, 
-      type: templateConfig?.type || 'lock' 
-    });
-    setStep(2);
-  };
-
-  const nextStep = () => setStep((s) => Math.min(s + 1, 6));
-  const prevStep = () => setStep((s) => Math.max(s - 1, 1));
+  const steps = [
+    { num: 1, title: 'Type', desc: 'Lock or Vesting' },
+    { num: 2, title: 'Token', desc: 'Select asset' },
+    { num: 3, title: 'Schedule', desc: 'Set timeline' },
+    { num: 4, title: 'Options', desc: 'Configure' },
+    { num: 5, title: 'Review', desc: 'Confirm' },
+  ];
 
   if (!connected) {
     return (
-      <div className="min-h-[60vh] flex items-center justify-center">
-        <div className="text-center">
-          <Lock className="h-16 w-16 text-brand-500 mx-auto mb-6" />
-          <h1 className="text-2xl font-display font-bold mb-4">Connect Your Wallet</h1>
-          <p className="text-surface-400 mb-8">Connect a Solana wallet to create a token lock</p>
+      <main className="min-h-[80vh] flex items-center justify-center px-6">
+        <div className="text-center max-w-md">
+          <h1 className="font-editorial text-3xl text-[#1A1A1A] mb-4">Connect Wallet</h1>
+          <p className="text-[#4A4A4A] mb-8">
+            Connect your Solana wallet to create a token lock or vesting schedule.
+          </p>
+          <WalletMultiButton />
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="py-12">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-display font-bold mb-4">Create Token Lock</h1>
-          <p className="text-surface-400">Lock or vest your tokens with on-chain proofs</p>
-        </div>
+    <main className="max-w-4xl mx-auto px-6 py-16">
+      {/* Header */}
+      <div className="mb-12">
+        <div className="text-[11px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-3">Create</div>
+        <h1 className="font-editorial text-4xl text-[#1A1A1A] mb-4">New Lock</h1>
+        <p className="text-[#4A4A4A]">Configure your token lock or vesting schedule.</p>
+      </div>
 
-        {/* Progress Steps */}
-        <div className="flex items-center justify-center gap-2 mb-12">
-          {[1, 2, 3, 4, 5, 6].map((s) => (
-            <div key={s} className="flex items-center">
-              <button
-                onClick={() => s < step && setStep(s)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-all ${
-                  s === step
-                    ? 'bg-brand-500 text-white'
-                    : s < step
-                    ? 'bg-brand-500/20 text-brand-400'
-                    : 'bg-surface-800 text-surface-500'
-                }`}
-              >
-                {s < step ? <Check className="h-4 w-4" /> : s}
-              </button>
-              {s < 6 && (
-                <div className={`w-8 h-0.5 ${s < step ? 'bg-brand-500/50' : 'bg-surface-700'}`} />
+      {/* Progress Steps */}
+      <div className="mb-12">
+        <div className="flex items-center justify-between max-w-2xl">
+          {steps.map((s, i) => (
+            <div key={s.num} className="flex items-center">
+              <div className="flex flex-col items-center">
+                <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-medium transition-colors ${
+                  step >= s.num 
+                    ? 'border-[#50908D] text-[#50908D] bg-[#50908D]/5' 
+                    : 'border-[#E5E0D8] text-[#8A8A8A]'
+                }`}>
+                  {s.num}
+                </div>
+                <div className="text-[11px] mt-2 text-[#8A8A8A]">{s.title}</div>
+              </div>
+              {i < steps.length - 1 && (
+                <div className={`w-16 lg:w-24 h-[1px] mx-2 ${
+                  step > s.num ? 'bg-[#50908D]/30' : 'bg-[#E5E0D8]'
+                }`} />
               )}
             </div>
           ))}
         </div>
+      </div>
 
-        {/* Step Content */}
-        <div className="glass-card p-8">
-          <AnimatePresence mode="wait">
-            {/* Step 1: Choose Template */}
-            {step === 1 && (
-              <motion.div
-                key="step1"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+      {/* Form */}
+      <div className="editorial-card p-8">
+        {/* Step 1: Lock Type */}
+        {step === 1 && (
+          <div className="space-y-6">
+            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Select Lock Type</h2>
+            
+            <div className="grid md:grid-cols-2 gap-4">
+              <button
+                type="button"
+                onClick={() => updateFormData('lockType', 'lock')}
+                className={`p-6 text-left border transition-all ${
+                  formData.lockType === 'lock'
+                    ? 'border-[#50908D] bg-[#50908D]/5'
+                    : 'border-[#E5E0D8] hover:border-[#D4CFC4]'
+                }`}
               >
-                <h2 className="text-xl font-semibold mb-6">Choose a Template</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {templates.map((template) => {
-                    const Icon = template.icon;
-                    return (
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    formData.lockType === 'lock' ? 'border-[#50908D] bg-[#50908D]' : 'border-[#D4CFC4]'
+                  }`}>
+                    {formData.lockType === 'lock' && (
+                      <div className="w-full h-full rounded-full border-2 border-white" />
+                    )}
+                  </div>
+                  <span className="font-medium text-[#1A1A1A]">Token Lock</span>
+                </div>
+                <p className="text-sm text-[#8A8A8A]">
+                  Simple time-locked vault. All tokens unlock on a single date.
+                </p>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => updateFormData('lockType', 'vesting')}
+                className={`p-6 text-left border transition-all ${
+                  formData.lockType === 'vesting'
+                    ? 'border-[#50908D] bg-[#50908D]/5'
+                    : 'border-[#E5E0D8] hover:border-[#D4CFC4]'
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className={`w-4 h-4 rounded-full border-2 ${
+                    formData.lockType === 'vesting' ? 'border-[#50908D] bg-[#50908D]' : 'border-[#D4CFC4]'
+                  }`}>
+                    {formData.lockType === 'vesting' && (
+                      <div className="w-full h-full rounded-full border-2 border-white" />
+                    )}
+                  </div>
+                  <span className="font-medium text-[#1A1A1A]">Vesting Schedule</span>
+                </div>
+                <p className="text-sm text-[#8A8A8A]">
+                  Gradual release over time with optional cliff period.
+                </p>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 2: Token Selection */}
+        {step === 2 && (
+          <div className="space-y-6">
+            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Select Token</h2>
+            
+            <div>
+              <label className="block text-sm text-[#4A4A4A] mb-2">Token Mint Address</label>
+              <input
+                type="text"
+                value={formData.tokenMint}
+                onChange={(e) => updateFormData('tokenMint', e.target.value)}
+                placeholder="Enter SPL token mint address"
+                className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-[#4A4A4A] mb-2">Amount</label>
+              <input
+                type="number"
+                value={formData.amount}
+                onChange={(e) => updateFormData('amount', e.target.value)}
+                placeholder="0.00"
+                className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-[#4A4A4A] mb-2">Recipient Wallet</label>
+              <input
+                type="text"
+                value={formData.recipient}
+                onChange={(e) => updateFormData('recipient', e.target.value)}
+                placeholder="Wallet address that will receive unlocked tokens"
+                className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Schedule */}
+        {step === 3 && (
+          <div className="space-y-6">
+            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">
+              {formData.lockType === 'lock' ? 'Unlock Date' : 'Vesting Schedule'}
+            </h2>
+            
+            {formData.lockType === 'lock' ? (
+              <div>
+                <label className="block text-sm text-[#4A4A4A] mb-2">Unlock Date</label>
+                <input
+                  type="datetime-local"
+                  value={formData.unlockDate}
+                  onChange={(e) => updateFormData('unlockDate', e.target.value)}
+                  className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+                />
+              </div>
+            ) : (
+              <>
+                <div>
+                  <label className="block text-sm text-[#4A4A4A] mb-3">Schedule Type</label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {(['linear', 'cliff', 'custom'] as VestingSchedule[]).map((schedule) => (
                       <button
-                        key={template.id}
-                        onClick={() => selectTemplate(template.id as LockTemplate)}
-                        className={`p-6 rounded-xl border text-left transition-all ${
-                          formData.template === template.id
-                            ? 'border-brand-500 bg-brand-500/10'
-                            : 'border-surface-700 hover:border-surface-600 bg-surface-800/50'
+                        key={schedule}
+                        type="button"
+                        onClick={() => updateFormData('vestingSchedule', schedule)}
+                        className={`px-4 py-3 text-sm border transition-all capitalize ${
+                          formData.vestingSchedule === schedule
+                            ? 'border-[#50908D] bg-[#50908D]/5 text-[#50908D]'
+                            : 'border-[#E5E0D8] text-[#4A4A4A] hover:border-[#D4CFC4]'
                         }`}
                       >
-                        <Icon className={`h-8 w-8 mb-4 ${formData.template === template.id ? 'text-brand-400' : 'text-surface-400'}`} />
-                        <h3 className="font-semibold mb-1">{template.label}</h3>
-                        <p className="text-sm text-surface-400">{template.description}</p>
-                        <div className="mt-3">
-                          <span className={`tag ${template.type === 'lock' ? 'tag-brand' : 'tag-accent'}`}>
-                            {template.type === 'lock' ? 'Single Unlock' : 'Vesting'}
-                          </span>
-                        </div>
+                        {schedule === 'cliff' ? 'Cliff + Linear' : schedule}
                       </button>
-                    );
-                  })}
+                    ))}
+                  </div>
                 </div>
-              </motion.div>
-            )}
 
-            {/* Step 2: Token & Amount */}
-            {step === 2 && (
-              <motion.div
-                key="step2"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <h2 className="text-xl font-semibold mb-6">Token & Amount</h2>
-                <div className="space-y-6">
+                {formData.vestingSchedule !== 'linear' && (
                   <div>
-                    <label className="block text-sm font-medium mb-2">Token Mint Address</label>
+                    <label className="block text-sm text-[#4A4A4A] mb-2">Cliff Duration (days)</label>
                     <input
-                      type="text"
-                      value={formData.tokenMint}
-                      onChange={(e) => updateForm({ tokenMint: e.target.value })}
-                      placeholder="Enter token mint address"
-                      className="input-glow w-full font-mono text-sm"
+                      type="number"
+                      value={formData.cliffDuration}
+                      onChange={(e) => updateFormData('cliffDuration', e.target.value)}
+                      className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
                     />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Amount to Lock</label>
-                    <input
-                      type="text"
-                      value={formData.amount}
-                      onChange={(e) => updateForm({ amount: e.target.value })}
-                      placeholder="0.00"
-                      className="input-glow w-full text-lg"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Recipient Address</label>
-                    <input
-                      type="text"
-                      value={formData.recipient}
-                      onChange={(e) => updateForm({ recipient: e.target.value })}
-                      placeholder={publicKey?.toBase58() || 'Recipient wallet address'}
-                      className="input-glow w-full font-mono text-sm"
-                    />
-                    <p className="text-xs text-surface-500 mt-2">
-                      Leave empty to use your connected wallet
-                    </p>
-                  </div>
-                </div>
-                <div className="flex justify-between mt-8">
-                  <button onClick={prevStep} className="flex items-center gap-2 px-4 py-2 text-surface-400 hover:text-white">
-                    <ChevronLeft className="h-4 w-4" /> Back
-                  </button>
-                  <button 
-                    onClick={nextStep}
-                    disabled={!formData.tokenMint || !formData.amount}
-                    className="flex items-center gap-2 px-6 py-2 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium disabled:opacity-50"
-                  >
-                    Continue <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-
-            {/* Step 3: Schedule */}
-            {step === 3 && (
-              <motion.div
-                key="step3"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <h2 className="text-xl font-semibold mb-6">
-                  {formData.type === 'lock' ? 'Unlock Date' : 'Vesting Schedule'}
-                </h2>
-                
-                {formData.type === 'lock' ? (
-                  <div>
-                    <label className="block text-sm font-medium mb-2">Unlock Date & Time</label>
-                    <input
-                      type="datetime-local"
-                      value={formData.unlockDate}
-                      onChange={(e) => updateForm({ unlockDate: e.target.value })}
-                      className="input-glow w-full"
-                    />
-                    <div className="mt-4 p-4 rounded-xl bg-warning-500/10 border border-warning-500/20">
-                      <div className="flex items-start gap-3">
-                        <AlertTriangle className="h-5 w-5 text-warning-400 shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-medium text-warning-400">Irreversible Action</p>
-                          <p className="text-sm text-surface-400 mt-1">
-                            Token locks cannot be modified after creation. Tokens will be locked until the unlock date.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-6">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Start Date</label>
-                        <input
-                          type="datetime-local"
-                          value={formData.startDate}
-                          onChange={(e) => updateForm({ startDate: e.target.value })}
-                          className="input-glow w-full"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium mb-2">End Date</label>
-                        <input
-                          type="datetime-local"
-                          value={formData.endDate}
-                          onChange={(e) => updateForm({ endDate: e.target.value })}
-                          className="input-glow w-full"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Unlock Interval</label>
-                      <select
-                        value={formData.interval}
-                        onChange={(e) => updateForm({ interval: e.target.value })}
-                        className="input-glow w-full"
-                      >
-                        {intervals.map((interval) => (
-                          <option key={interval.value} value={interval.value}>
-                            {interval.label}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Cliff Amount (%)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        max="100"
-                        value={formData.cliffPercent}
-                        onChange={(e) => updateForm({ cliffPercent: e.target.value })}
-                        className="input-glow w-full"
-                        placeholder="0"
-                      />
-                      <p className="text-xs text-surface-500 mt-2">
-                        Percentage released at first unlock interval
-                      </p>
-                    </div>
                   </div>
                 )}
-                
-                <div className="flex justify-between mt-8">
-                  <button onClick={prevStep} className="flex items-center gap-2 px-4 py-2 text-surface-400 hover:text-white">
-                    <ChevronLeft className="h-4 w-4" /> Back
-                  </button>
-                  <button onClick={nextStep} className="flex items-center gap-2 px-6 py-2 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium">
-                    Continue <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
 
-            {/* Step 4: Permissions */}
-            {step === 4 && (
-              <motion.div
-                key="step4"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <h2 className="text-xl font-semibold mb-6">Permissions</h2>
-                <div className="space-y-6">
-                  <div>
-                    <label className="block text-sm font-medium mb-3">Who can cancel?</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {(['neither', 'sender', 'recipient', 'both'] as const).map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => updateForm({ cancelableBy: option })}
-                          className={`px-4 py-3 rounded-xl border text-sm capitalize transition-all ${
-                            formData.cancelableBy === option
-                              ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                              : 'border-surface-700 hover:border-surface-600'
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium mb-3">Who can transfer recipient?</label>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {(['neither', 'sender', 'recipient', 'both'] as const).map((option) => (
-                        <button
-                          key={option}
-                          onClick={() => updateForm({ transferableBy: option })}
-                          className={`px-4 py-3 rounded-xl border text-sm capitalize transition-all ${
-                            formData.transferableBy === option
-                              ? 'border-brand-500 bg-brand-500/10 text-brand-400'
-                              : 'border-surface-700 hover:border-surface-600'
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                <div>
+                  <label className="block text-sm text-[#4A4A4A] mb-2">Total Vesting Duration (days)</label>
+                  <input
+                    type="number"
+                    value={formData.vestingDuration}
+                    onChange={(e) => updateFormData('vestingDuration', e.target.value)}
+                    className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+                  />
                 </div>
-                <div className="flex justify-between mt-8">
-                  <button onClick={prevStep} className="flex items-center gap-2 px-4 py-2 text-surface-400 hover:text-white">
-                    <ChevronLeft className="h-4 w-4" /> Back
-                  </button>
-                  <button onClick={nextStep} className="flex items-center gap-2 px-6 py-2 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium">
-                    Continue <ChevronRight className="h-4 w-4" />
-                  </button>
-                </div>
-              </motion.div>
+              </>
             )}
+          </div>
+        )}
 
-            {/* Step 5: Yield Boost */}
-            {step === 5 && (
-              <motion.div
-                key="step5"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-              >
-                <h2 className="text-xl font-semibold mb-6">Yield Boost</h2>
-                <div className="p-6 rounded-xl border border-warning-500/30 bg-warning-500/5 mb-6">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-xl bg-warning-500/20">
-                      <Zap className="h-6 w-6 text-warning-400" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-warning-400 mb-2">Earn While Locked</h3>
-                      <p className="text-sm text-surface-400">
-                        Enable Yield Boost to earn staking rewards on your locked tokens. 
-                        Pay a small fee based on your buy price, and we'll match it with staked SOL.
-                      </p>
-                    </div>
-                  </div>
+        {/* Step 4: Options */}
+        {step === 4 && (
+          <div className="space-y-6">
+            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Configure Options</h2>
+            
+            {/* Yield Boost */}
+            <div className="p-6 border border-[#E5E0D8] bg-[#FAFAF8]">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <div className="font-medium text-[#1A1A1A] mb-1">Enable Yield Boost</div>
+                  <p className="text-sm text-[#8A8A8A]">Earn yield on matched SOL stake through your lock period</p>
                 </div>
-                
                 <button
-                  onClick={() => updateForm({ enableYieldBoost: !formData.enableYieldBoost })}
-                  className={`w-full p-4 rounded-xl border transition-all ${
-                    formData.enableYieldBoost
-                      ? 'border-brand-500 bg-brand-500/10'
-                      : 'border-surface-700 hover:border-surface-600'
+                  type="button"
+                  onClick={() => updateFormData('enableYieldBoost', !formData.enableYieldBoost)}
+                  className={`relative w-12 h-6 rounded-full transition-colors ${
+                    formData.enableYieldBoost ? 'bg-[#50908D]' : 'bg-[#D4CFC4]'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="font-medium">Enable Yield Boost</span>
-                    <div className={`w-12 h-6 rounded-full transition-colors ${
-                      formData.enableYieldBoost ? 'bg-brand-500' : 'bg-surface-700'
-                    }`}>
-                      <div className={`w-5 h-5 rounded-full bg-white shadow-md transition-transform ${
-                        formData.enableYieldBoost ? 'translate-x-6' : 'translate-x-0.5'
-                      } mt-0.5`} />
-                    </div>
-                  </div>
+                  <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                    formData.enableYieldBoost ? 'translate-x-7' : 'translate-x-1'
+                  }`} />
                 </button>
-
-                {formData.enableYieldBoost && (
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium mb-2">Buy Transaction Signatures</label>
-                      <textarea
-                        placeholder="Enter transaction signatures (one per line)"
-                        className="input-glow w-full h-24 font-mono text-xs"
-                        onChange={(e) => updateForm({ 
-                          buyTxSignatures: e.target.value.split('\n').filter(Boolean) 
-                        })}
-                      />
-                      <p className="text-xs text-surface-500 mt-2">
-                        We'll verify your token purchases to calculate the fee
-                      </p>
-                    </div>
-                    <div className="glass-card p-4">
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-surface-400">Estimated Fee</span>
-                        <span className="font-medium">Calculating...</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div className="flex justify-between mt-8">
-                  <button onClick={prevStep} className="flex items-center gap-2 px-4 py-2 text-surface-400 hover:text-white">
-                    <ChevronLeft className="h-4 w-4" /> Back
-                  </button>
-                  <button onClick={nextStep} className="flex items-center gap-2 px-6 py-2 bg-brand-600 hover:bg-brand-500 rounded-xl font-medium">
-                    Continue <ChevronRight className="h-4 w-4" />
-                  </button>
+              </div>
+              
+              {formData.enableYieldBoost && (
+                <div className="pt-4 border-t border-[#E5E0D8]">
+                  <label className="block text-sm text-[#4A4A4A] mb-2">Your Buy Price (SOL per token)</label>
+                  <input
+                    type="number"
+                    value={formData.buyPrice}
+                    onChange={(e) => updateFormData('buyPrice', e.target.value)}
+                    placeholder="0.000001"
+                    step="0.000001"
+                    className="w-full px-4 py-3 border border-[#E5E0D8] bg-white text-[#1A1A1A] placeholder-[#8A8A8A] focus:outline-none focus:border-[#50908D] font-mono text-sm"
+                  />
+                  <p className="text-xs text-[#8A8A8A] mt-2">
+                    A fee based on this price will be collected and matched with SOL staking.
+                  </p>
                 </div>
-              </motion.div>
-            )}
+              )}
+            </div>
 
-            {/* Step 6: Review & Create */}
-            {step === 6 && (
-              <motion.div
-                key="step6"
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+            {/* Cancel Authority */}
+            <div>
+              <label className="block text-sm text-[#4A4A4A] mb-3">Cancel Authority</label>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {(['none', 'creator', 'recipient', 'both'] as const).map((auth) => (
+                  <button
+                    key={auth}
+                    type="button"
+                    onClick={() => updateFormData('cancelAuthority', auth)}
+                    className={`px-4 py-3 text-sm border transition-all capitalize ${
+                      formData.cancelAuthority === auth
+                        ? 'border-[#50908D] bg-[#50908D]/5 text-[#50908D]'
+                        : 'border-[#E5E0D8] text-[#4A4A4A] hover:border-[#D4CFC4]'
+                    }`}
+                  >
+                    {auth}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Transferable */}
+            <div className="flex items-center justify-between p-4 border border-[#E5E0D8]">
+              <div>
+                <div className="font-medium text-[#1A1A1A] mb-1">Transferable Recipient</div>
+                <p className="text-sm text-[#8A8A8A]">Allow the locked position to be transferred to another wallet</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => updateFormData('transferable', !formData.transferable)}
+                className={`relative w-12 h-6 rounded-full transition-colors ${
+                  formData.transferable ? 'bg-[#50908D]' : 'bg-[#D4CFC4]'
+                }`}
               >
-                <h2 className="text-xl font-semibold mb-6">Review & Create</h2>
-                
-                <div className="space-y-4">
-                  <div className="glass-card p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-surface-400">Type</span>
-                      <span className="tag tag-brand capitalize">{formData.type}</span>
-                    </div>
-                  </div>
-                  <div className="glass-card p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-surface-400">Token</span>
-                      <span className="font-mono text-sm">{formData.tokenMint.slice(0, 8)}...{formData.tokenMint.slice(-8)}</span>
-                    </div>
-                  </div>
-                  <div className="glass-card p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-surface-400">Amount</span>
-                      <span className="font-semibold">{formData.amount}</span>
-                    </div>
-                  </div>
-                  {formData.type === 'lock' ? (
-                    <div className="glass-card p-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-surface-400">Unlock Date</span>
-                        <span>{new Date(formData.unlockDate).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="glass-card p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-surface-400">Vesting Period</span>
-                          <span>{new Date(formData.startDate).toLocaleDateString()} - {new Date(formData.endDate).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <div className="glass-card p-4">
-                        <div className="flex items-center justify-between">
-                          <span className="text-surface-400">Cliff</span>
-                          <span>{formData.cliffPercent}%</span>
-                        </div>
-                      </div>
-                    </>
-                  )}
-                  <div className="glass-card p-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-surface-400">Yield Boost</span>
-                      <span className={formData.enableYieldBoost ? 'text-success-400' : 'text-surface-500'}>
-                        {formData.enableYieldBoost ? 'Enabled' : 'Disabled'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+                <div className={`absolute top-1 w-4 h-4 rounded-full bg-white transition-transform ${
+                  formData.transferable ? 'translate-x-7' : 'translate-x-1'
+                }`} />
+              </button>
+            </div>
+          </div>
+        )}
 
-                <div className="mt-6 p-4 rounded-xl bg-error-500/10 border border-error-500/20">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-error-400 shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-error-400">Final Warning</p>
-                      <p className="text-sm text-surface-400 mt-1">
-                        This action is irreversible. Please verify all details before creating the lock.
-                      </p>
-                    </div>
+        {/* Step 5: Review */}
+        {step === 5 && (
+          <div className="space-y-6">
+            <h2 className="font-editorial text-xl text-[#1A1A1A] mb-6">Review & Confirm</h2>
+            
+            <div className="space-y-4">
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Type</span>
+                <span className="font-medium capitalize">{formData.lockType}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Token</span>
+                <span className="font-mono text-sm">{formData.tokenMint.slice(0, 8)}...{formData.tokenMint.slice(-8) || '—'}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Amount</span>
+                <span className="font-mono">{formData.amount || '—'}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Recipient</span>
+                <span className="font-mono text-sm">{formData.recipient.slice(0, 8)}...{formData.recipient.slice(-8) || '—'}</span>
+              </div>
+              {formData.lockType === 'lock' ? (
+                <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                  <span className="text-[#8A8A8A]">Unlock Date</span>
+                  <span>{formData.unlockDate || '—'}</span>
+                </div>
+              ) : (
+                <>
+                  <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                    <span className="text-[#8A8A8A]">Schedule</span>
+                    <span className="capitalize">{formData.vestingSchedule}</span>
                   </div>
-                </div>
-                
-                <div className="flex justify-between mt-8">
-                  <button onClick={prevStep} className="flex items-center gap-2 px-4 py-2 text-surface-400 hover:text-white">
-                    <ChevronLeft className="h-4 w-4" /> Back
-                  </button>
-                  <button className="flex items-center gap-2 px-8 py-3 bg-brand-600 hover:bg-brand-500 rounded-xl font-semibold shadow-glow">
-                    <Lock className="h-4 w-4" />
-                    Create Lock
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                    <span className="text-[#8A8A8A]">Duration</span>
+                    <span>{formData.vestingDuration} days</span>
+                  </div>
+                </>
+              )}
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Yield Boost</span>
+                <span className={formData.enableYieldBoost ? 'text-[#50908D]' : ''}>{formData.enableYieldBoost ? 'Enabled' : 'Disabled'}</span>
+              </div>
+              <div className="flex justify-between py-3 border-b border-[#E5E0D8]">
+                <span className="text-[#8A8A8A]">Cancel Authority</span>
+                <span className="capitalize">{formData.cancelAuthority}</span>
+              </div>
+            </div>
+
+            <div className="bg-[#FAFAF8] p-4 border border-[#E5E0D8] text-sm text-[#8A8A8A]">
+              <p>By creating this lock, you agree to the terms and conditions. The lock will be created on-chain and will generate a public proof page.</p>
+            </div>
+          </div>
+        )}
+
+        {/* Navigation */}
+        <div className="flex justify-between mt-8 pt-6 border-t border-[#E5E0D8]">
+          <button
+            type="button"
+            onClick={() => setStep(Math.max(1, step - 1))}
+            disabled={step === 1}
+            className="btn-secondary disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            Back
+          </button>
+          
+          {step < 5 ? (
+            <button
+              type="button"
+              onClick={() => setStep(Math.min(5, step + 1))}
+              className="btn-primary"
+            >
+              Continue
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => alert('Creating lock... (demo)')}
+              className="btn-primary"
+            >
+              Create Lock
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </button>
+          )}
         </div>
       </div>
-    </div>
+    </main>
   );
 }
-

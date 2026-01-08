@@ -1,131 +1,120 @@
 'use client';
 
-import { FC } from 'react';
 import Link from 'next/link';
-import { Zap, Twitter, Github, FileText } from 'lucide-react';
 
-export const Footer: FC = () => {
+export function Footer() {
   return (
-    <footer className="border-t border-surface-800/50 bg-surface-950/50 mt-auto">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="border-t border-[#E5E0D8] bg-[var(--parchment)]">
+      <div className="max-w-7xl mx-auto px-6 lg:px-16 py-12">
+        {/* Top section */}
+        <div className="grid md:grid-cols-4 gap-8 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-500 to-accent-500">
-                <Zap className="h-4 w-4 text-white" />
-              </div>
-              <span className="font-display text-lg font-bold">
-                Sol<span className="text-brand-400">Flow</span>
-              </span>
-            </Link>
-            <p className="mt-4 text-sm text-surface-400 max-w-md">
-              The premier token locking and vesting platform for Solana. Secure your tokens with 
-              on-chain proofs and earn yield through our innovative Yield Boost feature.
-            </p>
-            <div className="flex items-center gap-4 mt-6">
-              <a 
-                href="https://x.com/solflowdotfun" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
-              >
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a 
-                href="https://github.com/solflowfun/solflow" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
-              >
-                <Github className="h-4 w-4" />
-              </a>
-              <a 
-                href="https://solflow.fun" 
-                className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
-              >
-                <FileText className="h-4 w-4" />
-              </a>
+            <div className="flex items-center gap-3 mb-4">
+              <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="footerLogoGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#50908D" />
+                    <stop offset="50%" stopColor="#817CCD" />
+                    <stop offset="100%" stopColor="#C47809" />
+                  </linearGradient>
+                </defs>
+                <circle cx="16" cy="16" r="14" stroke="url(#footerLogoGrad)" strokeWidth="2" fill="none" />
+                <path
+                  d="M10 16C10 16 13 12 16 12C19 12 22 16 22 16C22 16 19 20 16 20C13 20 10 16 10 16Z"
+                  stroke="url(#footerLogoGrad)"
+                  strokeWidth="1.5"
+                  fill="none"
+                />
+                <circle cx="16" cy="16" r="2" fill="url(#footerLogoGrad)" />
+              </svg>
+              <div className="h-5 w-[1px] bg-[#C47809]" />
+              <span className="font-editorial text-lg gradient-wordmark">SOLFLOW</span>
             </div>
+            <p className="text-sm text-[#8A8A8A] max-w-xs leading-relaxed">
+              Token locking and vesting infrastructure for Solana. Build trust with public proof pages.
+            </p>
           </div>
 
           {/* Links */}
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4">Product</h3>
-            <ul className="space-y-3">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">Product</div>
+            <ul className="space-y-2">
               <li>
-                <Link href="/create" className="text-sm text-surface-400 hover:text-white transition-colors">
+                <Link href="/create" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
                   Create Lock
                 </Link>
               </li>
               <li>
-                <Link href="/explore" className="text-sm text-surface-400 hover:text-white transition-colors">
-                  Explore Locks
+                <Link href="/explore" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
+                  Explore
                 </Link>
               </li>
               <li>
-                <Link href="/portfolio" className="text-sm text-surface-400 hover:text-white transition-colors">
+                <Link href="/portfolio" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
                   Portfolio
                 </Link>
               </li>
               <li>
-                <Link href="/stats" className="text-sm text-surface-400 hover:text-white transition-colors">
-                  Analytics
+                <Link href="/stats" className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors">
+                  Stats
                 </Link>
               </li>
             </ul>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-white mb-4">Resources</h3>
-            <ul className="space-y-3">
+            <div className="text-[10px] uppercase tracking-[0.2em] text-[#8A8A8A] mb-4">Resources</div>
+            <ul className="space-y-2">
               <li>
-                <Link href="/docs" className="text-sm text-surface-400 hover:text-white transition-colors">
+                <a
+                  href="https://docs.solflow.fun"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
+                >
                   Documentation
-                </Link>
+                </a>
               </li>
               <li>
-                <a 
-                  href="https://github.com/solflow" 
-                  target="_blank" 
+                <a
+                  href="https://github.com/solflowfun"
+                  target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-surface-400 hover:text-white transition-colors"
+                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
                 >
                   GitHub
                 </a>
               </li>
               <li>
-                <Link href="/audits" className="text-sm text-surface-400 hover:text-white transition-colors">
-                  Security Audits
-                </Link>
-              </li>
-              <li>
-                <Link href="/faq" className="text-sm text-surface-400 hover:text-white transition-colors">
-                  FAQ
-                </Link>
+                <a
+                  href="https://x.com/solflowdotfun"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-sm text-[#4A4A4A] hover:text-[#1A1A1A] transition-colors"
+                >
+                  X (Twitter)
+                </a>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-surface-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-xs text-surface-500">
-            © {new Date().getFullYear()} SolFlow. All rights reserved.
-          </p>
+        {/* Divider */}
+        <div className="hairline mb-6" />
+
+        {/* Bottom section */}
+        <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-[#8A8A8A]">
+          <p>© 2026 Solflow. All rights reserved.</p>
           <div className="flex items-center gap-6">
-            <Link href="/terms" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">
-              Terms
-            </Link>
-            <Link href="/privacy" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">
-              Privacy
-            </Link>
-            <Link href="/risks" className="text-xs text-surface-500 hover:text-surface-300 transition-colors">
-              Risk Disclosures
-            </Link>
+            <a href="https://solflow.fun" target="_blank" rel="noopener noreferrer" className="hover:text-[#1A1A1A] transition-colors">
+              solflow.fun
+            </a>
+            <span className="text-[#D4CFC4]">•</span>
+            <span>Built on Solana</span>
           </div>
         </div>
       </div>
     </footer>
   );
-};
-
+}
