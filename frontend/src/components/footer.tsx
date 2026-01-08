@@ -25,7 +25,7 @@ export const Footer: FC = () => {
             </p>
             <div className="flex items-center gap-4 mt-6">
               <a 
-                href="https://twitter.com/solflow" 
+                href="https://x.com/solflowdotfun" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
@@ -33,7 +33,7 @@ export const Footer: FC = () => {
                 <Twitter className="h-4 w-4" />
               </a>
               <a 
-                href="https://github.com/solflow" 
+                href="https://github.com/solflowfun/solflow" 
                 target="_blank" 
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
@@ -41,7 +41,7 @@ export const Footer: FC = () => {
                 <Github className="h-4 w-4" />
               </a>
               <a 
-                href="/docs" 
+                href="https://solflow.fun" 
                 className="p-2 rounded-lg bg-surface-800/50 hover:bg-surface-700 transition-colors"
               >
                 <FileText className="h-4 w-4" />
