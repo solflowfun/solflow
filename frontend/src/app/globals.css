@@ -17,35 +17,21 @@
     color: #1C1713;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    /* Subtle paper texture */
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-    background-blend-mode: overlay;
-    background-size: 200px 200px;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-color: #F8F1E7;
-    opacity: 0.985;
-    pointer-events: none;
-    z-index: -1;
   }
 
   /* Refined scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: transparent;
+    background: #F2E6D6;
   }
 
   ::-webkit-scrollbar-thumb {
     background: #D9C4A9;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
@@ -54,30 +40,30 @@
 
   /* Selection with ember accent */
   ::selection {
-    background: rgba(213, 82, 46, 0.12);
+    background: rgba(213, 82, 46, 0.15);
     color: #1C1713;
   }
 }
 
 @layer components {
-  /* Elevated card on cream - minimal shadow */
+  /* Elevated card on cream */
   .card {
     background-color: #FDFBF7;
     border: 1px solid #E8D7C2;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px rgba(28, 23, 19, 0.03);
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(28, 23, 19, 0.04);
   }
 
   .card-hover {
     background-color: #FDFBF7;
     border: 1px solid #E8D7C2;
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 3px rgba(28, 23, 19, 0.03);
+    border-radius: 1rem;
+    box-shadow: 0 2px 8px rgba(28, 23, 19, 0.04);
     transition: all 0.2s ease;
   }
 
   .card-hover:hover {
-    box-shadow: 0 2px 8px rgba(28, 23, 19, 0.05);
+    box-shadow: 0 4px 16px rgba(28, 23, 19, 0.06);
     border-color: #D9C4A9;
   }
 
@@ -87,18 +73,18 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 1.75rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 9999px;
     color: white;
     font-weight: 500;
     font-size: 0.875rem;
     background: linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%);
-    box-shadow: 0 2px 12px rgba(213, 82, 46, 0.2);
+    box-shadow: 0 4px 24px rgba(213, 82, 46, 0.2);
     transition: all 0.2s ease;
   }
 
   .btn-ember:hover {
-    box-shadow: 0 4px 20px rgba(213, 82, 46, 0.25);
+    box-shadow: 0 8px 32px rgba(213, 82, 46, 0.25);
     transform: translateY(-1px);
   }
 
@@ -108,7 +94,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.875rem 1.75rem;
+    padding: 0.75rem 1.5rem;
     border-radius: 9999px;
     border: 1px solid #1C1713;
     color: #1C1713;
@@ -119,17 +105,16 @@
   }
 
   .btn-ghost:hover {
-    background-color: rgba(28, 23, 19, 0.03);
+    background-color: rgba(28, 23, 19, 0.04);
   }
 
   /* Input field */
   .input-field {
     background-color: #FDFBF7;
     border: 1px solid #E8D7C2;
-    border-radius: 0.5rem;
+    border-radius: 0.75rem;
     padding: 0.75rem 1rem;
     color: #1C1713;
-    font-size: 0.875rem;
     transition: all 0.15s ease;
   }
 
@@ -140,7 +125,7 @@
   .input-field:focus {
     outline: none;
     border-color: #E08B46;
-    box-shadow: 0 0 0 2px rgba(224, 139, 70, 0.08);
+    box-shadow: 0 0 0 3px rgba(224, 139, 70, 0.1);
   }
 
   /* Ember gradient text */
@@ -151,22 +136,21 @@
     background-clip: text;
   }
 
-  /* Tags - minimal */
+  /* Tags */
   .tag {
     display: inline-flex;
     align-items: center;
-    gap: 0.25rem;
-    padding: 0.25rem 0.625rem;
+    gap: 0.375rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 9999px;
-    font-size: 0.6875rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    letter-spacing: 0.02em;
   }
 
   .tag-ember {
     background-color: rgba(213, 82, 46, 0.08);
     color: #D5522E;
-    border: 1px solid rgba(213, 82, 46, 0.12);
+    border: 1px solid rgba(213, 82, 46, 0.15);
   }
 
   .tag-neutral {
@@ -175,15 +159,10 @@
     border: 1px solid #E8D7C2;
   }
 
-  /* Hairline dividers */
+  /* Divider */
   .divider {
     height: 1px;
     background-color: #E8D7C2;
-  }
-
-  .divider-ember {
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, #D5522E 15%, #E08B46 50%, #C47809 85%, transparent 100%);
   }
 }
 
@@ -197,38 +176,19 @@
   .link-ember:hover {
     color: #D5522E;
   }
-
-  /* Editorial pull quote styling */
-  .pull-quote {
-    position: relative;
-    padding-left: 1.5rem;
-    font-style: italic;
-    color: #5C5549;
-  }
-
-  .pull-quote::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    width: 2px;
-    background: linear-gradient(180deg, #D5522E, #E08B46);
-  }
 }
 
-/* Wallet adapter overrides - warm editorial theme */
+/* Wallet adapter overrides - warm theme */
 .wallet-adapter-button {
   background: linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%) !important;
   color: white !important;
   font-weight: 500 !important;
   border-radius: 9999px !important;
-  box-shadow: 0 2px 12px rgba(213, 82, 46, 0.15) !important;
-  font-size: 0.875rem !important;
+  box-shadow: 0 4px 24px rgba(213, 82, 46, 0.15) !important;
 }
 
 .wallet-adapter-button:hover {
-  box-shadow: 0 4px 20px rgba(213, 82, 46, 0.2) !important;
+  box-shadow: 0 8px 32px rgba(213, 82, 46, 0.2) !important;
 }
 
 .wallet-adapter-modal-wrapper {
@@ -237,13 +197,11 @@
 
 .wallet-adapter-modal-title {
   color: #1C1713 !important;
-  font-weight: 600 !important;
 }
 
 .wallet-adapter-modal-list li {
   background: #FDFBF7 !important;
   border: 1px solid #E8D7C2 !important;
-  border-radius: 0.5rem !important;
 }
 
 .wallet-adapter-modal-list li:hover {
