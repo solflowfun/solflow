@@ -12,18 +12,14 @@ export const Footer: FC = () => {
         <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
           {/* Brand */}
           <div className="flex items-center gap-8">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/">
               <Image 
                 src="/logo.png" 
                 alt="SolFlow" 
-                width={28} 
-                height={28}
+                width={32} 
+                height={32}
                 className="rounded-md"
               />
-              <span className="font-display text-base font-bold tracking-tight uppercase">
-                <span className="text-[#3AAFA9]">Sol</span>
-                <span className="text-[#E08B46]">flow</span>
-              </span>
             </Link>
             <div className="hidden sm:flex items-center gap-6 text-sm text-charcoal-400">
               <Link href="/create" className="link-ember">

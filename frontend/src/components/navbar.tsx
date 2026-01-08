@@ -24,18 +24,14 @@ export const Navbar: FC = () => {
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
+          <Link href="/" className="flex items-center">
             <Image 
               src="/logo.png" 
               alt="SolFlow" 
-              width={36} 
-              height={36}
+              width={40} 
+              height={40}
               className="rounded-lg"
             />
-            <span className="font-display text-xl font-bold tracking-tight uppercase">
-              <span className="text-[#3AAFA9]">Sol</span>
-              <span className="text-[#E08B46]">flow</span>
-            </span>
           </Link>
 
           {/* Desktop Navigation */}

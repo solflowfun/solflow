@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Lock, Zap, ArrowRight, Check, 
-  ChevronDown, Shield, Plus, Minus
+  Lock, ArrowRight, Check, 
+  Plus, Minus
 } from 'lucide-react';
 
 // Timeline milestones
@@ -15,78 +15,36 @@ const milestones = [
     step: 1,
     title: 'Create Lock',
     description: 'Define your token amount, recipient, and unlock schedule',
-    preview: {
-      status: 'Creating',
-      tokens: '1,000,000 PEPE',
-      progress: 0,
-      state: 'Configuring parameters...',
-    },
   },
   {
     id: 'confirmed',
     step: 2,
     title: 'Lock Confirmed',
     description: 'Tokens transferred to secure escrow on Solana',
-    preview: {
-      status: 'Locked',
-      tokens: '1,000,000 PEPE',
-      progress: 0,
-      state: 'Tokens secured in escrow',
-    },
   },
   {
     id: 'cliff',
     step: 3,
     title: 'Cliff Released',
     description: 'Initial cliff amount becomes claimable',
-    yieldBoost: true,
-    preview: {
-      status: 'Cliff',
-      tokens: '1,000,000 PEPE',
-      progress: 10,
-      state: '100,000 tokens unlocked (10% cliff)',
-      unlocked: '100,000',
-    },
   },
   {
     id: 'vesting',
     step: 4,
     title: 'Vest Unlocks',
     description: 'Progressive unlocks according to schedule',
-    preview: {
-      status: 'Vesting',
-      tokens: '1,000,000 PEPE',
-      progress: 55,
-      state: 'Monthly unlocks in progress',
-      unlocked: '550,000',
-    },
   },
   {
     id: 'end',
     step: 5,
     title: 'Schedule Complete',
     description: 'All tokens fully vested and available',
-    preview: {
-      status: 'Complete',
-      tokens: '1,000,000 PEPE',
-      progress: 100,
-      state: 'All tokens unlocked',
-      unlocked: '1,000,000',
-    },
   },
   {
     id: 'claim',
     step: 6,
     title: 'Claim Tokens',
     description: 'Withdraw unlocked tokens to your wallet',
-    preview: {
-      status: 'Claimed',
-      tokens: '1,000,000 PEPE',
-      progress: 100,
-      state: 'Tokens transferred to recipient',
-      unlocked: '1,000,000',
-      claimed: true,
-    },
   },
 ];
 
@@ -186,182 +144,67 @@ export default function HomePage() {
           </div>
         </motion.div>
 
-        {/* Scroll indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-12 flex flex-col items-center gap-2 text-charcoal-400"
-        >
+        {/* Scroll indicator - static */}
+        <div className="absolute bottom-12 flex flex-col items-center gap-2 text-charcoal-400">
           <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
-          <motion.div
-            animate={{ y: [0, 6, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <ChevronDown className="h-4 w-4" />
-          </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       {/* Timeline Section */}
       <section ref={timelineRef} className="relative py-32">
-        <div className="max-w-6xl mx-auto px-4">
-          <div className="grid lg:grid-cols-[1fr,400px] gap-16">
-            {/* Timeline Rail */}
-            <div className="relative">
-              {/* Rail background */}
-              <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-cream-400" />
-              
-              {/* Rail progress fill - ember gradient */}
-              <div
-                className="absolute left-[19px] top-0 w-[2px] transition-all duration-300"
-                style={{ 
-                  height: `${scrollProgress * 100}%`,
-                  background: 'linear-gradient(180deg, #D5522E 0%, #E08B46 50%, #C47809 100%)'
-                }}
-              />
+        <div className="max-w-4xl mx-auto px-4">
+          {/* Timeline Rail */}
+          <div className="relative">
+            {/* Rail background */}
+            <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-cream-400" />
+            
+            {/* Rail progress fill - ember gradient */}
+            <div
+              className="absolute left-[19px] top-0 w-[2px] transition-all duration-300"
+              style={{ 
+                height: `${scrollProgress * 100}%`,
+                background: 'linear-gradient(180deg, #D5522E 0%, #E08B46 50%, #C47809 100%)'
+              }}
+            />
 
-              {/* Milestones */}
-              <div className="space-y-20">
-                {milestones.map((milestone, index) => {
-                  const isActive = index === activeIndex;
-                  const isPast = index < activeIndex;
+            {/* Milestones */}
+            <div className="space-y-20">
+              {milestones.map((milestone, index) => {
+                const isActive = index === activeIndex;
+                const isPast = index < activeIndex;
 
-                  return (
-                    <div
-                      key={milestone.id}
-                      ref={(el) => { milestoneRefs.current[index] = el; }}
-                      className="relative pl-16"
-                    >
-                      {/* Step indicator */}
-                      <div
-                        className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
-                          isActive
-                            ? 'text-white shadow-ember-glow'
-                            : isPast
-                            ? 'bg-ember-orange/10 text-ember-orange border border-ember-orange/20'
-                            : 'bg-cream-300 text-charcoal-400 border border-cream-400'
-                        }`}
-                        style={isActive ? { background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%)' } : {}}
-                      >
-                        {isPast ? <Check className="h-4 w-4" /> : milestone.step}
-                      </div>
-
-                      {/* Content */}
-                      <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-50'}`}>
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className={`text-lg font-medium ${isActive ? 'text-charcoal-800' : 'text-charcoal-600'}`}>
-                            {milestone.title}
-                          </h3>
-                          {milestone.yieldBoost && (
-                            <span className="tag-ember">
-                              <Zap className="h-3 w-3" />
-                              Yield Boost
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-sm text-charcoal-400 max-w-sm">
-                          {milestone.description}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Pinned Preview */}
-            <div className="hidden lg:block">
-              <div className="sticky top-32">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={activeIndex}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    transition={{ duration: 0.3 }}
-                    className="card p-6"
+                return (
+                  <div
+                    key={milestone.id}
+                    ref={(el) => { milestoneRefs.current[index] = el; }}
+                    className="relative pl-16"
                   >
-                    <div className="flex items-center justify-between mb-6">
-                      <span className="text-xs uppercase tracking-widest text-charcoal-400">
-                        Proof Preview
-                      </span>
-                      <span className={`text-xs px-2.5 py-1 rounded-full ${
-                        milestones[activeIndex].preview.claimed
-                          ? 'bg-emerald-50 text-emerald-600 border border-emerald-200'
-                          : 'bg-cream-300 text-charcoal-500'
-                      }`}>
-                        {milestones[activeIndex].preview.status}
-                      </span>
+                    {/* Step indicator */}
+                    <div
+                      className={`absolute left-0 w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-all duration-300 ${
+                        isActive
+                          ? 'text-white shadow-ember-glow'
+                          : isPast
+                          ? 'bg-ember-orange/10 text-ember-orange border border-ember-orange/20'
+                          : 'bg-cream-300 text-charcoal-400 border border-cream-400'
+                      }`}
+                      style={isActive ? { background: 'linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%)' } : {}}
+                    >
+                      {isPast ? <Check className="h-4 w-4" /> : milestone.step}
                     </div>
 
-                    {/* Token display */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <div 
-                        className="w-12 h-12 rounded-xl flex items-center justify-center"
-                        style={{ background: 'linear-gradient(135deg, rgba(213, 82, 46, 0.1) 0%, rgba(224, 139, 70, 0.08) 100%)' }}
-                      >
-                        <Lock className="h-5 w-5 text-ember-red" />
-                      </div>
-                      <div>
-                        <div className="text-xl font-semibold text-charcoal-800">
-                          {milestones[activeIndex].preview.tokens}
-                        </div>
-                        <div className="text-sm text-charcoal-400">
-                          {milestones[activeIndex].preview.state}
-                        </div>
-                      </div>
+                    {/* Content */}
+                    <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-50'}`}>
+                      <h3 className={`text-lg font-medium mb-2 ${isActive ? 'text-charcoal-800' : 'text-charcoal-600'}`}>
+                        {milestone.title}
+                      </h3>
+                      <p className="text-sm text-charcoal-400 max-w-sm">
+                        {milestone.description}
+                      </p>
                     </div>
-
-                    {/* Progress bar */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between text-xs mb-2">
-                        <span className="text-charcoal-400">Progress</span>
-                        <span className="text-charcoal-600 font-medium">
-                          {milestones[activeIndex].preview.progress}%
-                        </span>
-                      </div>
-                      <div className="h-2 bg-cream-300 rounded-full overflow-hidden">
-                        <motion.div
-                          className="h-full rounded-full"
-                          style={{ background: 'linear-gradient(90deg, #D5522E 0%, #E08B46 50%, #C47809 100%)' }}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${milestones[activeIndex].preview.progress}%` }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Unlocked amount */}
-                    {milestones[activeIndex].preview.unlocked && (
-                      <div className="pt-4 border-t border-cream-400">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-charcoal-400">Unlocked</span>
-                          <span className="text-sm font-medium text-ember-orange">
-                            {milestones[activeIndex].preview.unlocked} PEPE
-                          </span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Yield boost indicator */}
-                    {milestones[activeIndex].yieldBoost && (
-                      <div className="mt-4 p-3 rounded-xl bg-amber-50 border border-amber-200">
-                        <div className="flex items-center gap-2 text-amber-700 text-sm">
-                          <Zap className="h-4 w-4" />
-                          <span>Yield accruing: ~0.023 SOL</span>
-                        </div>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-
-                {/* Verification badge */}
-                <div className="mt-4 flex items-center gap-2 text-charcoal-400 text-xs">
-                  <Shield className="h-3.5 w-3.5" />
-                  <span>Verified on Solana blockchain</span>
-                </div>
-              </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -418,21 +261,15 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Transparency section */}
+      {/* CTA section */}
       <section className="py-24 bg-cream-300/50">
         <div className="max-w-4xl mx-auto px-4 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-cream-200 text-charcoal-500 text-xs mb-8 border border-cream-400">
-            <Shield className="h-3.5 w-3.5" />
-            <span>Built for transparency</span>
-          </div>
-
           <h2 className="text-2xl sm:text-3xl font-display font-semibold text-charcoal-800 mb-4">
-            Every lock is publicly verifiable
+            Ready to get started?
           </h2>
           
           <p className="text-charcoal-400 max-w-lg mx-auto mb-10">
-            All contracts are on-chain with shareable proof pages. 
-            No hidden terms, no trust required.
+            Create your first token lock in minutes.
           </p>
 
           <Link href="/create" className="btn-ember">
