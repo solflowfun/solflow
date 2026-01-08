@@ -4,90 +4,70 @@
 
 @layer base {
   :root {
-    --background: 246 241 232;
-    --foreground: 30 26 22;
+    --background: 248 241 231;
+    --foreground: 28 23 19;
   }
 
   * {
-    border-color: rgba(224, 214, 197, 0.3);
+    border-color: #E8D7C2;
   }
 
   body {
-    background-color: #F6F1E8;
-    color: #1E1A16;
+    background-color: #F8F1E7;
+    color: #1C1713;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Minimal scrollbar */
+  /* Refined scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: rgba(224, 214, 197, 0.5);
+    background: #F2E6D6;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #C9BDAA;
-    border-radius: 9999px;
+    background: #D9C4A9;
+    border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #A99D8A;
+    background: #C4A882;
   }
 
   /* Selection with ember accent */
   ::selection {
     background: rgba(213, 82, 46, 0.15);
-    color: #1E1A16;
+    color: #1C1713;
   }
 }
 
 @layer components {
-  /* Soft parchment cards */
+  /* Elevated card on cream */
   .card {
-    background-color: #FDFCFA;
-    border: 1px solid rgba(224, 214, 197, 0.3);
+    background-color: #FDFBF7;
+    border: 1px solid #E8D7C2;
     border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(30, 26, 22, 0.04);
+    box-shadow: 0 2px 8px rgba(28, 23, 19, 0.04);
   }
 
   .card-hover {
-    background-color: #FDFCFA;
-    border: 1px solid rgba(224, 214, 197, 0.3);
+    background-color: #FDFBF7;
+    border: 1px solid #E8D7C2;
     border-radius: 1rem;
-    box-shadow: 0 2px 8px rgba(30, 26, 22, 0.04);
-    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(28, 23, 19, 0.04);
+    transition: all 0.2s ease;
   }
 
   .card-hover:hover {
-    box-shadow: 0 4px 16px rgba(30, 26, 22, 0.06);
-    border-color: rgba(224, 214, 197, 0.5);
+    box-shadow: 0 4px 16px rgba(28, 23, 19, 0.06);
+    border-color: #D9C4A9;
   }
 
-  /* Input styling - warm and minimal */
-  .input-field {
-    background-color: #FDFCFA;
-    border: 1px solid rgba(224, 214, 197, 0.4);
-    border-radius: 0.75rem;
-    padding: 0.75rem 1rem;
-    color: #1E1A16;
-    transition: all 0.15s;
-  }
-
-  .input-field::placeholder {
-    color: #7A736B;
-  }
-
-  .input-field:focus {
-    outline: none;
-    border-color: rgba(224, 139, 70, 0.5);
-    box-shadow: 0 0 0 3px rgba(224, 139, 70, 0.1);
-  }
-
-  /* Ember gradient button */
+  /* Primary ember gradient button */
   .btn-ember {
     display: inline-flex;
     align-items: center;
@@ -98,18 +78,17 @@
     color: white;
     font-weight: 500;
     font-size: 0.875rem;
-    background: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%);
+    background: linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%);
     box-shadow: 0 4px 24px rgba(213, 82, 46, 0.2);
-    transition: all 0.2s;
+    transition: all 0.2s ease;
   }
 
   .btn-ember:hover {
-    background: linear-gradient(135deg, #C44A28 0%, #D07F3E 50%, #B36D08 100%);
     box-shadow: 0 8px 32px rgba(213, 82, 46, 0.25);
     transform: translateY(-1px);
   }
 
-  /* Ghost/outline button */
+  /* Secondary ghost button */
   .btn-ghost {
     display: inline-flex;
     align-items: center;
@@ -117,93 +96,119 @@
     gap: 0.5rem;
     padding: 0.75rem 1.5rem;
     border-radius: 9999px;
-    border: 1px solid #C9BDAA;
-    color: #3D3934;
+    border: 1px solid #1C1713;
+    color: #1C1713;
     font-weight: 500;
     font-size: 0.875rem;
     background: transparent;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
   }
 
   .btn-ghost:hover {
-    background-color: rgba(224, 214, 197, 0.3);
-    border-color: #A99D8A;
+    background-color: rgba(28, 23, 19, 0.04);
+  }
+
+  /* Input field */
+  .input-field {
+    background-color: #FDFBF7;
+    border: 1px solid #E8D7C2;
+    border-radius: 0.75rem;
+    padding: 0.75rem 1rem;
+    color: #1C1713;
+    transition: all 0.15s ease;
+  }
+
+  .input-field::placeholder {
+    color: #8C847A;
+  }
+
+  .input-field:focus {
+    outline: none;
+    border-color: #E08B46;
+    box-shadow: 0 0 0 3px rgba(224, 139, 70, 0.1);
   }
 
   /* Ember gradient text */
   .text-ember {
-    background: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%);
+    background: linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Tag/badge variants */
+  /* Tags */
   .tag {
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    padding: 0.125rem 0.625rem;
+    padding: 0.25rem 0.75rem;
     border-radius: 9999px;
     font-size: 0.75rem;
     font-weight: 500;
   }
 
   .tag-ember {
-    color: #D5522E;
     background-color: rgba(213, 82, 46, 0.08);
+    color: #D5522E;
     border: 1px solid rgba(213, 82, 46, 0.15);
   }
 
-  .tag-teal {
-    color: #50908D;
-    background-color: rgba(80, 144, 141, 0.08);
-    border: 1px solid rgba(80, 144, 141, 0.15);
-  }
-
   .tag-neutral {
-    color: #524D47;
-    background-color: rgba(224, 214, 197, 0.4);
-    border: 1px solid rgba(224, 214, 197, 0.3);
+    background-color: #F2E6D6;
+    color: #5C5549;
+    border: 1px solid #E8D7C2;
   }
 
-  /* Divider with ember accent */
-  .divider-ember {
+  /* Divider */
+  .divider {
     height: 1px;
-    width: 100%;
-    background: linear-gradient(90deg, transparent 0%, #D5522E 20%, #E08B46 50%, #C47809 80%, transparent 100%);
+    background-color: #E8D7C2;
+  }
+}
+
+@layer utilities {
+  /* Link hover to ember */
+  .link-ember {
+    color: #5C5549;
+    transition: color 0.15s ease;
+  }
+
+  .link-ember:hover {
+    color: #D5522E;
   }
 }
 
 /* Wallet adapter overrides - warm theme */
 .wallet-adapter-button {
-  background: linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%) !important;
+  background: linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%) !important;
   color: white !important;
   font-weight: 500 !important;
   border-radius: 9999px !important;
+  box-shadow: 0 4px 24px rgba(213, 82, 46, 0.15) !important;
 }
 
 .wallet-adapter-button:hover {
-  background: linear-gradient(135deg, #C44A28 0%, #D07F3E 50%, #B36D08 100%) !important;
+  box-shadow: 0 8px 32px rgba(213, 82, 46, 0.2) !important;
 }
 
 .wallet-adapter-modal-wrapper {
-  background: #FAF5EC !important;
+  background: #F8F1E7 !important;
 }
 
 .wallet-adapter-modal-title {
-  color: #1E1A16 !important;
+  color: #1C1713 !important;
 }
 
 .wallet-adapter-modal-list li {
-  background: #F6F1E8 !important;
-  border: 1px solid rgba(201, 189, 170, 0.3) !important;
+  background: #FDFBF7 !important;
+  border: 1px solid #E8D7C2 !important;
 }
 
 .wallet-adapter-modal-list li:hover {
-  background: #EDE6D9 !important;
+  background: #F2E6D6 !important;
 }
 
 .wallet-adapter-modal-button-close {
-  background: #EDE6D9 !important;
+  background: #F2E6D6 !important;
+  color: #5C5549 !important;
 }

@@ -10,31 +10,31 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Cream / Parchment backgrounds
+        // Cream / Paper backgrounds
         cream: {
-          50: '#FDFCFA',
-          100: '#FAF8F4',
-          200: '#FAF5EC',
-          300: '#F6F1E8',
-          400: '#EDE6D9',
-          500: '#E0D6C5',
-          600: '#C9BDAA',
-          700: '#A99D8A',
-          800: '#857A6A',
-          900: '#5C544A',
+          50: '#FDFBF7',
+          100: '#FAF6F0',
+          200: '#F8F1E7',  // Base cream
+          300: '#F2E6D6',  // Elevated cream
+          400: '#E8D7C2',  // Divider lines
+          500: '#D9C4A9',
+          600: '#C4A882',
+          700: '#A68B62',
+          800: '#7A6548',
+          900: '#4D3F2D',
         },
         // Warm charcoal text
         charcoal: {
-          50: '#F5F4F3',
-          100: '#E8E6E4',
-          200: '#D1CDCA',
-          300: '#A9A39D',
-          400: '#7A736B',
-          500: '#524D47',
-          600: '#3D3934',
-          700: '#2D2A26',
-          800: '#1E1A16',
-          900: '#0F0D0B',
+          50: '#F7F6F5',
+          100: '#ECEAE8',
+          200: '#D9D5D1',
+          300: '#B3ADA6',
+          400: '#8C847A',
+          500: '#5C5549',
+          600: '#3D3832',
+          700: '#2A2622',
+          800: '#1C1713',  // Primary text
+          900: '#0E0B09',
         },
         // Ember gradient stops
         ember: {
@@ -42,26 +42,21 @@ const config: Config = {
           orange: '#E08B46',
           gold: '#C47809',
         },
-        // Secondary accents (limited use)
-        accent: {
-          teal: '#50908D',
-          lavender: '#817CCD',
-        },
       },
       fontFamily: {
-        sans: ['var(--font-space-grotesk)', 'system-ui', 'sans-serif'],
-        display: ['var(--font-clash-display)', 'var(--font-space-grotesk)', 'system-ui'],
+        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        display: ['var(--font-clash-display)', 'var(--font-inter)', 'system-ui'],
         mono: ['var(--font-jetbrains-mono)', 'Menlo', 'monospace'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'ember-gradient': 'linear-gradient(135deg, #D5522E 0%, #E08B46 50%, #C47809 100%)',
-        'ember-gradient-horizontal': 'linear-gradient(90deg, #D5522E 0%, #E08B46 50%, #C47809 100%)',
-        'ember-gradient-vertical': 'linear-gradient(180deg, #D5522E 0%, #E08B46 50%, #C47809 100%)',
+        'ember-gradient': 'linear-gradient(135deg, #D5522E 0%, #E08B46 60%, #C47809 100%)',
+        'ember-gradient-soft': 'linear-gradient(135deg, rgba(213, 82, 46, 0.1) 0%, rgba(224, 139, 70, 0.08) 60%, rgba(196, 120, 9, 0.06) 100%)',
       },
       boxShadow: {
-        'soft': '0 2px 8px rgba(30, 26, 22, 0.06)',
-        'soft-lg': '0 4px 16px rgba(30, 26, 22, 0.08)',
+        'soft': '0 2px 8px rgba(28, 23, 19, 0.04)',
+        'soft-md': '0 4px 16px rgba(28, 23, 19, 0.06)',
+        'soft-lg': '0 8px 32px rgba(28, 23, 19, 0.08)',
         'ember-glow': '0 4px 24px rgba(213, 82, 46, 0.15)',
         'ember-glow-lg': '0 8px 40px rgba(213, 82, 46, 0.2)',
       },
@@ -69,6 +64,7 @@ const config: Config = {
         'fade-in': 'fade-in 0.3s ease-out',
         'slide-up': 'slide-up 0.5s ease-out',
         'float': 'float 6s ease-in-out infinite',
+        'glow-pulse': 'glow-pulse 4s ease-in-out infinite',
       },
       keyframes: {
         'fade-in': {
@@ -82,6 +78,10 @@ const config: Config = {
         'float': {
           '0%, 100%': { transform: 'translateY(0)' },
           '50%': { transform: 'translateY(-10px)' },
+        },
+        'glow-pulse': {
+          '0%, 100%': { opacity: '0.08' },
+          '50%': { opacity: '0.12' },
         },
       },
     },

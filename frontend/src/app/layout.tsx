@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import { Providers } from '@/components/providers';
 import { Navbar } from '@/components/navbar';
@@ -16,7 +17,8 @@ const jetbrainsMono = JetBrains_Mono({
   variable: '--font-jetbrains-mono',
 });
 
-// For display font, using Space Grotesk with heavier weights
+// For a more distinctive look, we could add Clash Display
+// For now, we'll use Space Grotesk for display too
 const clashDisplay = Space_Grotesk({
   subsets: ['latin'],
   variable: '--font-clash-display',
@@ -40,9 +42,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="dark">
       <body 
-        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${clashDisplay.variable} font-sans antialiased`}
+        className={`${spaceGrotesk.variable} ${jetbrainsMono.variable} ${clashDisplay.variable} font-sans bg-surface-950 text-white antialiased`}
       >
         <Providers>
           <div className="flex min-h-screen flex-col">
@@ -56,3 +58,4 @@ export default function RootLayout({
     </html>
   );
 }
+
