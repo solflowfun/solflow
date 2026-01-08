@@ -1,10 +1,10 @@
 'use client';
 
-import { FC, useEffect, useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { motion, useScroll, useTransform, useMotionValueEvent, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Lock, Clock, Zap, ArrowRight, Check, 
+  Lock, Zap, ArrowRight, Check, 
   ChevronDown, Shield, Plus, Minus
 } from 'lucide-react';
 
@@ -110,30 +110,47 @@ const faqs = [
 ];
 
 export default function HomePage() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const timelineRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const timelineRef = useRef<HTMLDivElement>(null);
+  const milestoneRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  const { scrollYProgress } = useScroll({
-    target: timelineRef,
-    offset: ['start center', 'end center'],
-  });
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!timelineRef.current) return;
+      
+      const timeline = timelineRef.current;
+      const rect = timeline.getBoundingClientRect();
+      const windowHeight = window.innerHeight;
+      
+      // Calculate how far through the timeline section we've scrolled
+      const start = rect.top - windowHeight * 0.5;
+      const end = rect.bottom - windowHeight * 0.5;
+      const current = -start;
+      const total = end - start;
+      
+      const progress = Math.max(0, Math.min(1, current / total));
+      setScrollProgress(progress);
+      
+      // Determine active milestone based on scroll
+      const newIndex = Math.min(
+        Math.floor(progress * milestones.length),
+        milestones.length - 1
+      );
+      setActiveIndex(Math.max(0, newIndex));
+    };
 
-  const railProgress = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-
-  useMotionValueEvent(scrollYProgress, 'change', (latest) => {
-    const index = Math.min(
-      Math.floor(latest * milestones.length),
-      milestones.length - 1
-    );
-    setActiveIndex(index);
-  });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <div ref={containerRef} className="relative">
+    <div className="relative">
       {/* Hero Section */}
-      <section className="min-h-[70vh] flex flex-col items-center justify-center px-4 relative">
+      <section className="min-h-[80vh] flex flex-col items-center justify-center px-4 relative">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -197,24 +214,21 @@ export default function HomePage() {
               <div className="absolute left-[19px] top-0 bottom-0 w-[2px] bg-surface-800" />
               
               {/* Rail progress fill */}
-              <motion.div
-                className="absolute left-[19px] top-0 w-[2px] bg-gradient-to-b from-teal-500 to-violet-500"
-                style={{ height: railProgress }}
+              <div
+                className="absolute left-[19px] top-0 w-[2px] bg-gradient-to-b from-teal-500 to-violet-500 transition-all duration-300"
+                style={{ height: `${scrollProgress * 100}%` }}
               />
 
               {/* Milestones */}
-              <div className="space-y-24">
+              <div className="space-y-20">
                 {milestones.map((milestone, index) => {
                   const isActive = index === activeIndex;
                   const isPast = index < activeIndex;
 
                   return (
-                    <motion.div
+                    <div
                       key={milestone.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true, margin: '-100px' }}
-                      transition={{ duration: 0.5, delay: index * 0.1 }}
+                      ref={(el) => { milestoneRefs.current[index] = el; }}
                       className="relative pl-16"
                     >
                       {/* Step indicator */}
@@ -231,7 +245,7 @@ export default function HomePage() {
                       </div>
 
                       {/* Content */}
-                      <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-60'}`}>
+                      <div className={`transition-opacity duration-300 ${isActive ? 'opacity-100' : 'opacity-50'}`}>
                         <div className="flex items-center gap-3 mb-2">
                           <h3 className={`text-lg font-medium ${isActive ? 'text-white' : 'text-surface-300'}`}>
                             {milestone.title}
@@ -247,7 +261,7 @@ export default function HomePage() {
                           {milestone.description}
                         </p>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
               </div>
