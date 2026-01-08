@@ -22,9 +22,9 @@ export const Navbar: FC = () => {
   return (
     <nav className="sticky top-0 z-50 border-b border-cream-400/50 bg-cream-200/80 backdrop-blur-xl">
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-        <div className="flex h-16 items-center justify-between">
+        <div className="relative flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center z-10">
             <Image 
               src="/logo.png" 
               alt="SolFlow" 
@@ -34,8 +34,8 @@ export const Navbar: FC = () => {
             />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center gap-1">
+          {/* Desktop Navigation - Centered */}
+          <div className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
             {navItems.map((item) => {
               const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
               
@@ -63,7 +63,7 @@ export const Navbar: FC = () => {
           </div>
 
           {/* Wallet Button */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 z-10">
             <WalletMultiButton className="!h-9 !px-4 !text-sm !font-medium" />
             
             {/* Mobile menu button */}
