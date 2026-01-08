@@ -1,0 +1,30 @@
+{
+  "name": "solflow",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MemeLock - Solana token lock, vesting, and yield boost platform",
+  "workspaces": [
+    "packages/*",
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "anchor:build": "cd programs && anchor build",
+    "anchor:test": "cd programs && anchor test",
+    "anchor:deploy": "cd programs && anchor deploy",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

@@ -1,0 +1,405 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// Core Models
+// ============================================
+
+/// Token lock/vesting contract
+model Contract {
+  id                    String   @id @default(cuid())
+  address               String   @unique /// On-chain account address
+  kind                  ContractKind
+  state                 ContractState
+  
+  // Participants
+  senderAddress         String
+  recipientAddress      String
+  
+  // Token info
+  mintAddress           String
+  tokenSymbol           String?
+  tokenName             String?
+  tokenDecimals         Int      @default(9)
+  tokenLogoUrl          String?
+  
+  // Schedule
+  startTs               DateTime
+  endTs                 DateTime
+  unlockIntervalSeconds Int      @default(0)
+  cliffAmount           BigInt   @default(0)
+  
+  // Amounts
+  totalAmount           BigInt
+  withdrawnAmount       BigInt   @default(0)
+  
+  // Permissions
+  cancelableBy          PermissionMode @default(NEITHER)
+  transferableBy        PermissionMode @default(NEITHER)
+  pausable              Boolean  @default(false)
+  
+  // Pause state
+  pausedAt              DateTime?
+  totalPausedDuration   Int      @default(0)
+  
+  // Yield boost
+  yieldBoostEnabled     Boolean  @default(false)
+  yieldBoostAddress     String?
+  
+  // Auto-claim
+  autoClaimEnabled      Boolean  @default(false)
+  
+  // Metadata
+  title                 String?
+  memo                  String?
+  
+  // Project association
+  projectId             String?
+  project               Project? @relation(fields: [projectId], references: [id])
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  indexedAt             DateTime @default(now())
+  
+  // Related records
+  withdrawals           Withdrawal[]
+  transfers             RecipientTransfer[]
+  yieldBoost            YieldBoost?
+  
+  @@index([senderAddress])
+  @@index([recipientAddress])
+  @@index([mintAddress])
+  @@index([projectId])
+  @@index([state])
+  @@index([createdAt])
+}
+
+/// Withdrawal event
+model Withdrawal {
+  id          String   @id @default(cuid())
+  contractId  String
+  contract    Contract @relation(fields: [contractId], references: [id])
+  
+  amount      BigInt
+  txSignature String   @unique
+  timestamp   DateTime
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([contractId])
+  @@index([timestamp])
+}
+
+/// Recipient transfer event
+model RecipientTransfer {
+  id             String   @id @default(cuid())
+  contractId     String
+  contract       Contract @relation(fields: [contractId], references: [id])
+  
+  fromAddress    String
+  toAddress      String
+  transferredBy  String
+  txSignature    String   @unique
+  timestamp      DateTime
+  
+  createdAt      DateTime @default(now())
+  
+  @@index([contractId])
+}
+
+// ============================================
+// Yield Boost Models
+// ============================================
+
+/// Yield boost for a contract
+model YieldBoost {
+  id                  String          @id @default(cuid())
+  address             String          @unique
+  contractId          String          @unique
+  contract            Contract        @relation(fields: [contractId], references: [id])
+  
+  state               YieldBoostState
+  userAddress         String
+  
+  // Attestation data
+  buyValueLamports    BigInt
+  feePaid             BigInt
+  principalMatched    BigInt
+  
+  // LST tracking
+  lstMint             String
+  lstAmountDeposited  BigInt         @default(0)
+  lstAmountLast       BigInt         @default(0)
+  
+  // Yield tracking
+  yieldAccrued        BigInt         @default(0)
+  yieldClaimed        BigInt         @default(0)
+  
+  // Timestamps
+  enabledAt           DateTime
+  fundedAt            DateTime?
+  lockEndTs           DateTime
+  
+  // Model type
+  isModelB            Boolean        @default(false)
+  
+  // Attestation reference
+  attestationTxsHash  String?
+  
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  
+  @@index([userAddress])
+  @@index([state])
+}
+
+/// Attestation record for buy-price verification
+model Attestation {
+  id              String   @id @default(cuid())
+  
+  walletAddress   String
+  mintAddress     String
+  amountLocked    BigInt
+  buyValueLamports BigInt
+  quoteAsset      QuoteAsset
+  
+  // Transaction references
+  txSignatures    String[]
+  txsHash         String   @unique
+  
+  // Validity
+  issuedAt        DateTime
+  expiresAt       DateTime
+  
+  // Signature
+  signature       String
+  
+  // Status
+  used            Boolean  @default(false)
+  usedInBoost     String?
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([walletAddress])
+  @@index([mintAddress])
+  @@index([txsHash])
+}
+
+// ============================================
+// Project Models
+// ============================================
+
+/// Project grouping contracts
+model Project {
+  id              String     @id @default(cuid())
+  slug            String     @unique
+  address         String?    @unique /// On-chain project account if exists
+  
+  ownerAddress    String
+  name            String
+  description     String?
+  
+  // Links
+  website         String?
+  twitter         String?
+  discord         String?
+  telegram        String?
+  logoUrl         String?
+  
+  // Status
+  verified        Boolean    @default(false)
+  
+  // Stats (denormalized for performance)
+  contractCount   Int        @default(0)
+  totalValueLocked BigInt    @default(0)
+  
+  // Timestamps
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  // Related
+  contracts       Contract[]
+  
+  @@index([ownerAddress])
+  @@index([verified])
+}
+
+// ============================================
+// Auto-claim Models
+// ============================================
+
+/// Auto-claim configuration
+model AutoClaimConfig {
+  id              String   @id @default(cuid())
+  contractAddress String   @unique
+  
+  active          Boolean  @default(true)
+  minClaimAmount  BigInt   @default(0)
+  
+  // Fee tracking
+  prepaidFees     BigInt   @default(0)
+  feesUsed        BigInt   @default(0)
+  
+  // Execution tracking
+  claimsExecuted  Int      @default(0)
+  lastClaimAt     DateTime?
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  @@index([active])
+}
+
+/// Auto-claim execution log
+model AutoClaimExecution {
+  id              String   @id @default(cuid())
+  contractAddress String
+  
+  amount          BigInt
+  feeCharged      BigInt
+  txSignature     String   @unique
+  
+  status          ExecutionStatus
+  errorMessage    String?
+  
+  executedAt      DateTime @default(now())
+  
+  @@index([contractAddress])
+  @@index([executedAt])
+}
+
+// ============================================
+// Notification Models
+// ============================================
+
+/// Notification subscription
+model NotificationSubscription {
+  id              String             @id @default(cuid())
+  walletAddress   String
+  
+  type            NotificationType
+  endpoint        String            /// Email, webhook URL, etc.
+  
+  // Filters
+  contractAddresses String[]
+  eventTypes      NotificationEvent[]
+  
+  active          Boolean           @default(true)
+  
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  
+  @@unique([walletAddress, type, endpoint])
+  @@index([walletAddress])
+  @@index([active])
+}
+
+/// Sent notification log
+model NotificationLog {
+  id              String            @id @default(cuid())
+  subscriptionId  String
+  
+  eventType       NotificationEvent
+  contractAddress String?
+  
+  payload         Json
+  status          NotificationStatus
+  errorMessage    String?
+  
+  sentAt          DateTime          @default(now())
+  
+  @@index([subscriptionId])
+  @@index([sentAt])
+}
+
+// ============================================
+// Indexer State
+// ============================================
+
+/// Indexer checkpoint for resumable indexing
+model IndexerCheckpoint {
+  id              String   @id @default(cuid())
+  name            String   @unique
+  
+  lastSlot        BigInt
+  lastSignature   String?
+  
+  updatedAt       DateTime @updatedAt
+}
+
+// ============================================
+// Enums
+// ============================================
+
+enum ContractKind {
+  LOCK
+  VESTING
+}
+
+enum ContractState {
+  SCHEDULED
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELED
+}
+
+enum PermissionMode {
+  NEITHER
+  SENDER
+  RECIPIENT
+  BOTH
+}
+
+enum YieldBoostState {
+  PENDING
+  ACTIVE
+  CLAIMED
+  CLOSED
+  CANCELED
+}
+
+enum QuoteAsset {
+  SOL
+  USDC
+}
+
+enum ExecutionStatus {
+  SUCCESS
+  FAILED
+  PENDING
+}
+
+enum NotificationType {
+  EMAIL
+  WEBHOOK
+  TELEGRAM
+  DISCORD
+}
+
+enum NotificationEvent {
+  CONTRACT_CREATED
+  UNLOCK_APPROACHING
+  UNLOCK_AVAILABLE
+  TOKENS_CLAIMED
+  CONTRACT_CANCELED
+  RECIPIENT_TRANSFERRED
+  YIELD_CLAIMED
+}
+
+enum NotificationStatus {
+  SENT
+  FAILED
+  PENDING
+}
+
